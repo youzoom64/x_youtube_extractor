@@ -14,8 +14,8 @@ sys.path.insert(0, project_root)
 
 print(f"プロジェクトルート: {project_root}")  # デバッグ用
 
-from workflows.scrape_only_cli import ScrapeOnlyWorkflowCLI
-from workflows.file_to_claude_cli import FileToClaudeCLI
+from workflows.scrape_only import ScrapeOnlyWorkflow
+from workflows.file_to_claude import FileToClaude
 from lib.utils import setup_logging, create_directories
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ class AutoScheduler:
             
             # Step 1: Twitter取得（ソート指定）
             logger.info("Step 1: Twitter取得開始")
-            workflow = ScrapeOnlyWorkflowCLI()
+            workflow = ScrapeOnlyWorkflow()
             result = workflow.execute(
                 query=job_config.get("query"),
                 count=job_config.get("count", 20),
@@ -114,7 +114,7 @@ class AutoScheduler:
                 logger.info("Step 2: Claude分析開始")
                 
                 try:
-                    claude_workflow = FileToClaudeCLI()  # ← 修正
+                    claude_workflow = FileToClaude()  # ← 修正
                     analysis_result = claude_workflow.execute(result, analysis_prompt)
                     
                     if analysis_result:

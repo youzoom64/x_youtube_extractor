@@ -10,7 +10,6 @@ from io import StringIO
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from workflows.scrape_only import ScrapeOnlyWorkflow
-from workflows.scrape_and_analyze import ScrapeAndAnalyzeWorkflow
 from workflows.scrape_with_screenshots import ScrapeWithScreenshotsWorkflow
 from lib.utils import setup_logging, create_directories, validate_query
 

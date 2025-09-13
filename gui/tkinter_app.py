@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from workflows.scrape_only import ScrapeOnlyWorkflow
-from workflows.scrape_and_analyze import ScrapeAndAnalyzeWorkflow
 from lib.utils import setup_logging, create_directories, validate_query
 
 logger = logging.getLogger(__name__)
@@ -503,9 +502,9 @@ class TwitterScraperGUI:
             
             # ワークフロー実行（スクリーンショット対応）
             if screenshot_enabled:
-                from workflows.scrape_replies_with_screenshots import ScrapeRepliesWithScreenshotsWorkflow
-                self.log_message("リプライ + スクリーンショット撮影モードで実行")
-                workflow = ScrapeRepliesWithScreenshotsWorkflow()
+                from workflows.scrape_with_screenshots import ScrapeWithScreenshotsWorkflow
+                self.log_message("リプライ + スクリーンショット撮影モードで実行（統合版）")
+                workflow = ScrapeWithScreenshotsWorkflow()
                 self.status_var.set("リプライ取得＋スクリーンショット撮影中...")
                 self.progress_var.set(30)
                 
@@ -874,8 +873,8 @@ class TwitterScraperGUI:
             self.progress_var.set(10)
             
             # ワークフロー実行
-            from workflows.video_transcription import VideoTranscriptionWorkflow
-            workflow = VideoTranscriptionWorkflow()
+            from workflows.universal_media_transcription import UniversalMediaTranscriptionWorkflow
+            workflow = UniversalMediaTranscriptionWorkflow()
             
             self.progress_var.set(30)
             video_path, text_file, transcription_text, translation = workflow.execute(

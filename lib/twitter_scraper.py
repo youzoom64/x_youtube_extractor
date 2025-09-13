@@ -571,8 +571,8 @@ class TwitterScraper:
                 new_replies_found = False
                 
                 for element in current_elements:
-                    if len(replies_data) == 0 and current_elements.index(element) == 0:
-                        continue
+                    # if len(replies_data) == 0 and current_elements.index(element) == 0:
+                    #     continue
                     
                     if self._is_reply_tweet(element):
                         reply_data = self._extract_tweet_data(element)

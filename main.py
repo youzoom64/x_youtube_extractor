@@ -4,8 +4,8 @@ import sys
 import os
 from lib.utils import setup_logging, create_directories
 from workflows.scrape_only import ScrapeOnlyWorkflow
-from workflows.scrape_and_analyze import ScrapeAndAnalyzeWorkflow
 from config.settings import DEFAULT_TWEET_COUNT
+from workflows.file_to_claude import FileToClaude
 
 def main():
     """メイン処理"""
@@ -18,14 +18,22 @@ def main():
     create_directories()
     
     # ワークフロー選択
+    # 修正後
     if args.analyze:
-        workflow = ScrapeAndAnalyzeWorkflow()
-        result = workflow.execute(
+        # 1. ツイート取得
+        scrape_workflow = ScrapeOnlyWorkflow()
+        txt_file = scrape_workflow.execute(
             query=args.query,
             count=args.count,
-            format_type=args.format,
-            analysis_prompt=args.prompt
+            format_type=args.format
         )
+        
+        if txt_file:
+            # 2. Claude分析
+            claude_workflow = FileToClaude()
+            result = claude_workflow.execute(txt_file, args.prompt)
+        else:
+            result = None
     else:
         workflow = ScrapeOnlyWorkflow()
         result = workflow.execute(

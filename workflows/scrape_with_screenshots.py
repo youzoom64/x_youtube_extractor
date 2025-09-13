@@ -22,13 +22,25 @@ class ScrapeWithScreenshotsWorkflow:
         self.formatter = Formatter()
         self.screenshot = None
     
-    def execute(self, query, count=20, format_type="txt", sort_type="latest", capture_mode="individual"):
-        """Twitter取得 + スクリーンショット撮影を同時実行"""
-        logger.info(f"=== Twitter取得 + スクリーンショット同時実行開始 ===")
-        logger.info(f"クエリ: {query}")
-        logger.info(f"件数: {count}")
-        logger.info(f"撮影モード: {capture_mode}")
+    def execute(self, query_or_url, count=20, format_type="txt", sort_type_or_capture_mode="latest", capture_mode=None):
+        """統合ハブ: URL判定で適切な処理に振り分け"""
         
+        if self._is_tweet_url(query_or_url):
+            # リプライ処理に振り分け
+            logger.info("リプライURLを検出、リプライ専用処理に移行します")
+            from workflows.scrape_replies_with_screenshots import ScrapeRepliesWithScreenshotsWorkflow
+            reply_workflow = ScrapeRepliesWithScreenshotsWorkflow()
+            capture_mode = sort_type_or_capture_mode  # 引数の読み替え
+            return reply_workflow.execute(query_or_url, count, format_type, capture_mode)
+        else:
+            # 通常の検索処理
+            logger.info(f"=== Twitter検索 + スクリーンショット同時実行開始 ===")
+            sort_type = sort_type_or_capture_mode
+            capture_mode = capture_mode or "individual"
+            return self._execute_normal_mode(query_or_url, count, format_type, sort_type, capture_mode)
+
+    def _execute_normal_mode(self, query, count, format_type, sort_type, capture_mode):
+        """従来の通常処理"""
         try:
             # 入力チェック
             is_valid, error_msg = validate_query(query)
@@ -54,7 +66,7 @@ class ScrapeWithScreenshotsWorkflow:
             if txt_file:
                 logger.info(f"=== 処理完了 ===")
                 logger.info(f"テキストファイル: {txt_file}")
-                logger.info(f"スクリーンショット: {len(screenshot_files)}ファイル")
+                logger.info(f"スクリーンショット: {len(screenshot_files)}件")
                 return txt_file, screenshot_files, None
             else:
                 logger.error("テキストファイル保存に失敗しました")
@@ -63,8 +75,6 @@ class ScrapeWithScreenshotsWorkflow:
         except Exception as e:
             logger.error(f"処理エラー: {e}")
             return None, None, None
-        finally:
-            self.chrome.close()
     
     def _execute_simultaneously(self, query, count, sort_type, capture_mode):
         """ツイート取得とスクリーンショットを同時実行"""
@@ -362,3 +372,19 @@ class ScrapeWithScreenshotsWorkflow:
         """このメソッドは使用しない（同時実行に置き換え）"""
         logger.warning("個別スクリーンショット撮影は非推奨です。同時実行を使用してください。")
         return [], None
+    
+    def _is_tweet_url(self, text):
+        """ツイートURLかどうか判定"""
+        try:
+            return ('x.com' in text or 'twitter.com' in text) and '/status/' in text
+        except:
+            return False
+
+    def _extract_tweet_id(self, url):
+        """URLからツイートIDを抽出"""
+        try:
+            import re
+            match = re.search(r'/status/(\d+)', url)
+            return match.group(1) if match else "unknown"
+        except:
+            return "unknown"

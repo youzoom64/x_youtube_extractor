@@ -66,38 +66,31 @@ class VideoProcessor:
             return None
     
     def initialize_whisper(self, model_size="base"):
-        """Whisperモデルを初期化（GPU自動検出版）"""
         try:
-            logger.info(f"Whisperモデル初期化中: {model_size}")
-            
-            # GPU自動検出（最小限）
-            try:
-                import torch
-                if torch.cuda.is_available():
-                    device = "cuda"
-                    compute_type = "float16"
-                    logger.info("🚀 CUDA GPU検出 - GPU使用で高速化")
-                else:
-                    device = "cpu" 
-                    compute_type = "int8"
-                    logger.info("💻 CPU使用")
-            except:
+            import torch
+            if torch.cuda.is_available():
+                device = "cuda"
+                compute_type = "float16"
+                logger.info(f"🚀 GPU使用: {torch.cuda.get_device_name(0)}")
+                logger.info(f"VRAM: {torch.cuda.get_device_properties(0).total_memory // 1024**3}GB")
+            else:
                 device = "cpu"
                 compute_type = "int8"
-                logger.info("💻 CPU使用")
-            
-            self.whisper_model = WhisperModel(
-                model_size, 
-                device=device, 
-                compute_type=compute_type
-            )
-            
-            logger.info("Whisperモデル初期化完了")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Whisperモデル初期化エラー: {e}")
-            return False
+                logger.info("💻 CPU使用（CUDA未対応）")
+        except ImportError:
+            device = "cpu"
+            compute_type = "int8"
+            logger.info("💻 CPU使用（PyTorch未インストール）")
+        
+        # GPU使用時はより大きなモデルを推奨
+        if device == "cuda" and model_size == "base":
+            logger.info("💡 GPU使用時は 'small' または 'medium' モデル推奨")
+        
+        self.whisper_model = WhisperModel(
+            model_size, 
+            device=device, 
+            compute_type=compute_type
+        )
     
     def setup_output_directory(self, query):
         """出力ディレクトリ設定"""
@@ -183,7 +176,7 @@ class VideoProcessor:
                 )
                 
                 # 結果の形式を確認
-                if isinstance(result, tuple) and len(result) >= 2:
+                if isinstance(result, tuple) and len(result) == 2:
                     segments, info = result
                     logger.info("Whisper処理完了、結果を整理中...")
                 elif hasattr(result, '__iter__'):
