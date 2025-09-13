@@ -412,13 +412,26 @@ class TwitterScraper:
             except:
                 username = ""
             
-            # ツイートURL（軽量版）
+            # ツイートURL（強化版）
             url = ""
             try:
+                # まず CSS セレクタで取得（従来どおり）
                 link_elem = element.find_element(By.CSS_SELECTOR, TWEET_LINK)
                 url = link_elem.get_attribute('href') if link_elem else ""
             except:
                 url = ""
+
+            # フォールバック: /status/ を含むリンクを XPath で探す
+            if not url:
+                try:
+                    alt_link = element.find_element(By.XPATH, ".//a[contains(@href, '/status/')]")
+                    url = alt_link.get_attribute('href')
+                except:
+                    url = ""
+
+            # 相対パスなら補完
+            if url and url.startswith("/"):
+                url = "https://x.com" + url
             
             # エンゲージメント数
             engagement = self._extract_engagement(element)
