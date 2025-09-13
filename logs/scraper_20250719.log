@@ -1,0 +1,96 @@
+2025-07-19 22:00:57,320 - INFO - === Twitter取得 + Claude分析開始 ===
+2025-07-19 22:00:57,320 - INFO - クエリ: 参政党
+2025-07-19 22:00:57,320 - INFO - 件数: 20
+2025-07-19 22:00:57,320 - INFO - フォーマット: txt
+2025-07-19 22:01:00,606 - INFO - Chrome デバッグモードに接続しました (Port: 9222)
+2025-07-19 22:01:00,607 - INFO - --- ツイート取得中 ---
+2025-07-19 22:01:00,607 - INFO - 検索開始: 参政党
+2025-07-19 22:01:11,922 - INFO - 検索実行: 参政党
+2025-07-19 22:01:22,461 - INFO - 取得完了: 20件
+2025-07-19 22:01:22,463 - INFO - ツイート解析完了: 20件
+2025-07-19 22:01:22,463 - INFO - ツイート取得完了: 20件
+2025-07-19 22:01:22,463 - INFO - --- Claude分析中 ---
+2025-07-19 22:01:24,333 - INFO - 新しいタブを作成しました
+2025-07-19 22:01:24,333 - INFO - Claude分析開始
+2025-07-19 22:01:26,619 - ERROR - メッセージ送信エラー: Message: no such element: Unable to locate element: {"method":"css selector","selector":"button[type="submit"]"}
+  (Session info: chrome=138.0.7204.158); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff6fda6e925+77845]
+	GetHandleVerifier [0x0x7ff6fda6e980+77936]
+	(No symbol) [0x0x7ff6fd829cda]
+	(No symbol) [0x0x7ff6fd8806aa]
+	(No symbol) [0x0x7ff6fd88095c]
+	(No symbol) [0x0x7ff6fd8d3d07]
+	(No symbol) [0x0x7ff6fd8a890f]
+	(No symbol) [0x0x7ff6fd8d0b07]
+	(No symbol) [0x0x7ff6fd8a86a3]
+	(No symbol) [0x0x7ff6fd871791]
+	(No symbol) [0x0x7ff6fd872523]
+	GetHandleVerifier [0x0x7ff6fdd4683d+3059501]
+	GetHandleVerifier [0x0x7ff6fdd40bfd+3035885]
+	GetHandleVerifier [0x0x7ff6fdd603f0+3164896]
+	GetHandleVerifier [0x0x7ff6fda88c2e+185118]
+	GetHandleVerifier [0x0x7ff6fda9053f+216111]
+	GetHandleVerifier [0x0x7ff6fda772d4+113092]
+	GetHandleVerifier [0x0x7ff6fda77489+113529]
+	GetHandleVerifier [0x0x7ff6fda5e288+10616]
+	BaseThreadInitThunk [0x0x7ffceae2e8d7+23]
+	RtlUserThreadStart [0x0x7ffceb17c34c+44]
+
+2025-07-19 22:01:26,621 - INFO - Claude分析完了
+2025-07-19 22:01:26,621 - WARNING - Claude分析に失敗しました
+2025-07-19 22:01:26,621 - INFO - TXTファイル保存: output/query\参政党.txt
+2025-07-19 22:01:26,622 - INFO - === 処理完了 ===
+2025-07-19 22:01:26,622 - INFO - 保存先: output/query\参政党.txt
+2025-07-19 22:01:26,622 - INFO - 取得件数: 20
+2025-07-19 22:07:57,292 - INFO - === Twitter取得開始 ===
+2025-07-19 22:07:57,292 - INFO - クエリ: 参政党
+2025-07-19 22:07:57,293 - INFO - 件数: 20
+2025-07-19 22:07:57,293 - INFO - フォーマット: txt
+2025-07-19 22:08:00,335 - INFO - Chrome デバッグモードに接続しました (Port: 9222)
+2025-07-19 22:08:00,335 - INFO - 検索開始: 参政党
+2025-07-19 22:08:31,195 - INFO - === Twitter取得 + Claude分析開始 ===
+2025-07-19 22:08:31,195 - INFO - クエリ: 参政党
+2025-07-19 22:08:31,196 - INFO - 件数: 20
+2025-07-19 22:08:31,196 - INFO - フォーマット: txt
+2025-07-19 22:08:34,183 - INFO - Chrome デバッグモードに接続しました (Port: 9222)
+2025-07-19 22:08:34,183 - INFO - --- ツイート取得中 ---
+2025-07-19 22:08:34,183 - INFO - 検索開始: 参政党
+2025-07-19 22:08:39,481 - INFO - 検索実行: 参政党
+2025-07-19 22:08:49,670 - INFO - 取得完了: 20件
+2025-07-19 22:08:49,671 - INFO - ツイート解析完了: 20件
+2025-07-19 22:08:49,671 - INFO - ツイート取得完了: 20件
+2025-07-19 22:08:49,673 - INFO - --- Claude分析中 ---
+2025-07-19 22:08:50,851 - INFO - 新しいタブを作成しました
+2025-07-19 22:08:50,851 - INFO - Claude分析開始
+2025-07-19 22:08:52,959 - ERROR - メッセージ送信エラー: Message: no such element: Unable to locate element: {"method":"css selector","selector":"button[type="submit"]"}
+  (Session info: chrome=138.0.7204.158); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff6fda6e925+77845]
+	GetHandleVerifier [0x0x7ff6fda6e980+77936]
+	(No symbol) [0x0x7ff6fd829cda]
+	(No symbol) [0x0x7ff6fd8806aa]
+	(No symbol) [0x0x7ff6fd88095c]
+	(No symbol) [0x0x7ff6fd8d3d07]
+	(No symbol) [0x0x7ff6fd8a890f]
+	(No symbol) [0x0x7ff6fd8d0b07]
+	(No symbol) [0x0x7ff6fd8a86a3]
+	(No symbol) [0x0x7ff6fd871791]
+	(No symbol) [0x0x7ff6fd872523]
+	GetHandleVerifier [0x0x7ff6fdd4683d+3059501]
+	GetHandleVerifier [0x0x7ff6fdd40bfd+3035885]
+	GetHandleVerifier [0x0x7ff6fdd603f0+3164896]
+	GetHandleVerifier [0x0x7ff6fda88c2e+185118]
+	GetHandleVerifier [0x0x7ff6fda9053f+216111]
+	GetHandleVerifier [0x0x7ff6fda772d4+113092]
+	GetHandleVerifier [0x0x7ff6fda77489+113529]
+	GetHandleVerifier [0x0x7ff6fda5e288+10616]
+	BaseThreadInitThunk [0x0x7ffceae2e8d7+23]
+	RtlUserThreadStart [0x0x7ffceb17c34c+44]
+
+2025-07-19 22:08:52,960 - INFO - Claude分析完了
+2025-07-19 22:08:52,960 - WARNING - Claude分析に失敗しました
+2025-07-19 22:08:52,960 - INFO - TXTファイル保存: output/query\参政党.txt
+2025-07-19 22:08:52,960 - INFO - === 処理完了 ===
+2025-07-19 22:08:52,960 - INFO - 保存先: output/query\参政党.txt
+2025-07-19 22:08:52,962 - INFO - 取得件数: 20

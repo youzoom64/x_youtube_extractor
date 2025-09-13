@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 超絶楽しい！Twitter スクレイピング + Claude 分析ツール 🚀</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --gradient-1: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            --gradient-2: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            --gradient-3: linear-gradient(90deg, #ff9a9e, #fecfef, #fecfef);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 🌟 パーティクル背景 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ✨ 魔法のカーソル */
+        .magic-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--neon-blue), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            animation: pulse 1s infinite;
+        }
+
+        .magic-cursor::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--neon-pink);
+            border-radius: 50%;
+            animation: rotate 2s linear infinite;
+        }
+
+        /* 🎵 フローティングアニメーション */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-blue); }
+            50% { box-shadow: 0 0 40px var(--neon-pink), 0 0 60px var(--neon-blue); }
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 🎪 コンテナ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 🚀 ヘッダー */
+        .header {
+            background: var(--gradient-1);
+            background-size: 400% 400%;
+            animation: rainbow 4s ease infinite;
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--neon-blue), transparent);
+            animation: rotate 6s linear infinite;
+            z-index: -1;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5em;
+            font-weight: 900;
+            text-shadow: 0 0 30px var(--neon-blue);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 3s steps(40) 1s both;
+        }
+
+        .header p {
+            font-size: 1.4em;
+            opacity: 0.9;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 🎮 プログレスバー */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-1);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* 🏆 達成バッジ */
+        .achievement-badge {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--gradient-2);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 10000;
+            backdrop-filter: blur(20px);
+            border: 3px solid var(--neon-yellow);
+            box-shadow: 0 0 50px var(--neon-yellow);
+            animation: achievementPop 0.5s ease-out forwards;
+        }
+
+        @keyframes achievementPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(180deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+
+        /* 🌈 グラスモーフィズム セクション */
+        .glass-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .glass-section:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 255, 255, 0.3);
+            border-color: var(--neon-blue);
+        }
+
+        .glass-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .glass-section:hover::before {
+            left: 100%;
+        }
+
+        /* 🎯 目次 */
+        .toc {
+            background: rgba(102, 126, 234, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .toc::after {
+            content: '🎯';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 2em;
+            animation: pulse 2s infinite;
+        }
+
+        .toc h2 {
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            margin-bottom: 20px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin: 15px 0;
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: slideInLeft 0.5s ease forwards;
+        }
+
+        .toc li:nth-child(1) { animation-delay: 0.1s; }
+        .toc li:nth-child(2) { animation-delay: 0.2s; }
+        .toc li:nth-child(3) { animation-delay: 0.3s; }
+        .toc li:nth-child(4) { animation-delay: 0.4s; }
+        .toc li:nth-child(5) { animation-delay: 0.5s; }
+        .toc li:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes slideInLeft {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toc a {
+            color: var(--neon-green);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .toc a:hover {
+            color: var(--neon-yellow);
+            background: rgba(255, 255, 0, 0.1);
+            transform: translateX(10px);
+            text-shadow: 0 0 15px var(--neon-yellow);
+        }
+
+        /* 🔥 コンボエフェクト */
+        .combo-effect {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient-1);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 1000;
+            transform: scale(0);
+            animation: comboSlide 0.5s ease-out forwards;
+        }
+
+        @keyframes comboSlide {
+            0% { transform: scale(0) rotate(180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* ⚡ ニューモーフィズム ボタン */
+        .neomorph-btn {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 20px;
+            color: var(--neon-blue);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.8),
+                -8px -8px 16px rgba(255, 255, 255, 0.05);
+        }
+
+        .neomorph-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.8),
+                -12px -12px 24px rgba(255, 255, 255, 0.1),
+                0 0 30px var(--neon-blue);
+        }
+
+        .neomorph-btn:active {
+            transform: translateY(2px);
+        }
+
+        /* 🎨 セクションタイトル */
+        h2 {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-pink);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 30px var(--neon-pink);
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            animation: glow 2s infinite;
+        }
+
+        /* 📱 モバイル対応のレスポンシブ設計 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .glass-section {
+                padding: 20px;
+                margin: 20px 0;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+
+        /* 🎪 コードブロック */
+        .code-block {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--neon-green);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .code-block::before {
+            content: '💻';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            animation: pulse 2s infinite;
+        }
+
+        .code-block code {
+            color: var(--neon-green);
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* 🚨 アラート */
+        .alert {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 5px solid;
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .alert-info {
+            background: rgba(49, 130, 206, 0.2);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .alert-success {
+            background: rgba(56, 178, 172, 0.2);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .alert-warning {
+            background: rgba(237, 137, 54, 0.2);
+            border-color: var(--neon-yellow);
+            color: var(--neon-yellow);
+        }
+
+        .alert-error {
+            background: rgba(229, 62, 62, 0.2);
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        /* 🎯 ステップカウンター */
+        .steps {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            counter-increment: step-counter;
+            margin: 25px 0;
+            padding: 20px 20px 20px 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateX(10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 0 20px var(--neon-blue);
+            animation: pulse 2s infinite;
+        }
+
+        /* 🃏 特徴カード */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) rotateY(5deg);
+            border-color: var(--neon-pink);
+            box-shadow: 0 20px 50px rgba(255, 0, 255, 0.3);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--neon-pink), transparent);
+            animation: rotate 8s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .feature-card h4 {
+            color: var(--neon-pink);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        /* 📊 テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: var(--gradient-2);
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        /* 🎵 サウンドエフェクト切り替え */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--neon-blue);
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: var(--neon-blue);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* 🌙 ダークモード切り替え */
+        .theme-toggle {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--neon-yellow);
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: var(--neon-yellow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* 🎪 イースターエッグ */
+        .easter-egg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+
+        .easter-egg:hover {
+            animation: rotate 1s linear infinite;
+        }
+
+        /* 🎊 パーティーモード */
+        .party-mode {
+            animation: rainbow 0.5s infinite;
+        }
+
+        .party-mode * {
+            animation: shake 0.1s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        /* 📱 モバイル最適化 */
+        @media (max-width: 768px) {
+            .magic-cursor { display: none; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .sound-toggle, .theme-toggle { position: relative; top: auto; left: auto; margin: 10px; }
+        }
+
+        /* 🎭 隠し要素 */
+        .hidden-quote {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-1);
+            padding: 20px;
+            border-radius: 15px;
+            transition: bottom 0.5s ease;
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .hidden-quote.show {
+            bottom: 20px;
+        }
+
+        /* 💫 ローディングスピナー */
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 10000;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 🌟 キラキラエフェクト */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-yellow);
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🌟 パーティクル キャンバス -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- ✨ 魔法のカーソル -->
+    <div class="magic-cursor" id="magicCursor"></div>
+    
+    <!-- 🎮 プログレスバー -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <!-- 🎵 サウンド切り替え -->
+    <div class="sound-toggle" id="soundToggle">🔊 サウンド</div>
+    
+    <!-- 🌙 テーマ切り替え -->
+    <div class="theme-toggle" id="themeToggle">🌙 テーマ</div>
+    
+    <!-- 🎪 イースターエッグ -->
+    <div class="easter-egg" id="easterEgg">🎉</div>
+    
+    <!-- 🔥 コンボエフェクト -->
+    <div class="combo-effect" id="comboEffect" style="display: none;">
+        <h3>🔥 COMBO x<span id="comboCount">1</span>！</h3>
+    </div>
+    
+    <!-- 💫 ローディングスピナー -->
+    <div class="loading-spinner" id="loadingSpinner"></div>
+    
+    <!-- 🎭 隠し名言 -->
+    <div class="hidden-quote" id="hiddenQuote">
+        <p>"コードは詩である。バグは...まあ、詩的な表現だ。" - 匿名の開発者</p>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🐦✨ Twitter スクレイピング + Claude 分析ツール 🚀🎮</h1>
+            <p>🌟 完全自動化対応 超絶楽しいマニュアル 🎊</p>
+        </div>
+
+        <div class="toc glass-section">
+            <h2>🎯 目次</h2>
+            <ul>
+                <li><a href="#setup">🚀 初期セットアップ</a></li>
+                <li><a href="#gui">🖥️ GUI版の使い方</a></li>
+                <li><a href="#scheduler">⏰ スケジューラー版の使い方</a></li>
+                <li><a href="#troubleshooting">🔧 トラブルシューティング</a></li>
+                <li><a href="#customization">🎨 カスタマイズ方法</a></li>
+                <li><a href="#examples">📊 使用例・活用シーン</a></li>
+            </ul>
+        </div>
+
+        <div class="glass-section" id="setup">
+            <h2>🚀 初期セットアップ</h2>
+            
+            <h3>🛠️ 環境準備</h3>
+            <div class="code-block">
+                <code># 🎯 プロジェクトディレクトリに移動
+cd C:\F\project_root\app_workspaces\X_query
+
+# 🌟 仮想環境をアクティベート
+source venv/bin/activate  # Linux/Mac
+# または
+venv\Scripts\activate     # Windows
+
+# 🚀 必要なライブラリをインストール
+pip install -r requirements.txt
+pip install schedule</code>
+            </div>
+
+            <h3>🌐 Chrome設定</h3>
+            <div class="alert alert-info">
+                <strong>⚡ 重要:</strong> Chromeを特別なモードで起動する必要があります
+            </div>
+            <div class="code-block">
+                <code># 🔧 Chromeをデバッグモードで起動
+chrome --remote-debugging-port=9222</code>
+            </div>
+
+            <h3>🤖 Claude.aiにログイン</h3>
+            <div class="steps">
+                <div class="step">開いたChromeで <code>https://claude.ai</code> にアクセス</div>
+                <div class="step">ログイン完了まで手動で行う</div>
+                <div class="step">ログイン状態を保持したまま放置</div>
+            </div>
+        </div>
+
+        <div class="glass-section" id="gui">
+            <h2>🖥️ GUI版の使い方</h2>
+            
+            <h3>⚡ 基本操作</h3>
+            <div class="code-block">
+                <code># 🎮 GUI起動
+python gui/tkinter_app.py</code>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📁 ファイルを開く</h4>
+                    <p>取得したツイートファイルを直接開きます</p>
+                    <button class="neomorph-btn" onclick="showAchievement('📁 ファイルマスター')">試してみる</button>
+                    </div>
+                <div class="feature-card">
+                    <h4>📂 フォルダを開く</h4>
+                    <p>保存されたフォルダをエクスプローラーで開きます</p>
+                    <button class="neomorph-btn" onclick="showAchievement('📂 フォルダエクスプローラー')">試してみる</button>
+                </div>
+                <div class="feature-card">
+                    <h4>📤 Claudeで分析</h4>
+                    <p>既存ファイルをClaudeにアップロードして追加分析</p>
+                    <button class="neomorph-btn" onclick="showAchievement('🤖 AI分析マスター')">試してみる</button>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 実行ボタン</h4>
+                    <p>設定完了後、この魔法のボタンで実行！</p>
+                    <button class="neomorph-btn" onclick="triggerPartyMode()">🚀 EXECUTE!</button>
+                </div>
+            </div>
+
+            <h3>📊 設定パネル</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>🎛️ 項目</th>
+                        <th>📝 説明</th>
+                        <th>💡 例</th>
+                        <th>🎮 操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chrome接続状態</td>
+                        <td>🟢 接続OK / 🔴 接続エラー</td>
+                        <td>リアルタイム表示</td>
+                        <td><button class="neomorph-btn" onclick="checkConnection()">確認</button></td>
+                    </tr>
+                    <tr>
+                        <td>検索クエリ</td>
+                        <td>Twitter検索するキーワード</td>
+                        <td>AI OR 人工知能</td>
+                        <td><button class="neomorph-btn" onclick="showQueryExamples()">例を見る</button></td>
+                    </tr>
+                    <tr>
+                        <td>取得件数</td>
+                        <td>1〜100件（スライダーで調整）</td>
+                        <td>30</td>
+                        <td><button class="neomorph-btn" onclick="animateSlider()">スライダー</button></td>
+                    </tr>
+                    <tr>
+                        <td>Claude分析</td>
+                        <td>チェックで自動分析ON</td>
+                        <td>ON/OFF</td>
+                        <td><button class="neomorph-btn" onclick="toggleAnalysis()">切り替え</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="glass-section" id="scheduler">
+            <h2>⏰ スケジューラー版の使い方</h2>
+
+            <h3>🎮 基本コマンド</h3>
+            <div class="code-block">
+                <code># 📋 設定ファイルの確認
+python scheduler/auto_scheduler.py --list
+
+# 🧪 特定ジョブのテスト実行
+python scheduler/auto_scheduler.py --test "朝のニュース分析"
+
+# 🚀 スケジューラー本稼働
+python scheduler/auto_scheduler.py
+
+# 🌙 バックグラウンド実行（Linux/Mac）
+nohup python scheduler/auto_scheduler.py > scheduler.log 2>&1 &</code>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>⚡ プロTip:</strong> スケジューラーを起動すると、あなたは完全自動化マスターになります！
+            </div>
+
+            <h3>⚙️ スケジュール設定例</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🌅 朝のニュース取得</h4>
+                    <p>毎朝8時に最新ニュースを自動収集</p>
+                    <div class="code-block">
+                        <code>{
+  "name": "朝のニュース分析",
+  "time": "08:00",
+  "query": "ニュース OR 最新情報",
+  "count": 30
+}</code>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>🌆 夕方のトレンド分析</h4>
+                    <p>夕方18時にトレンドを自動分析</p>
+                    <div class="code-block">
+                        <code>{
+  "name": "トレンド分析",
+  "time": "18:00",
+  "query": "#トレンド OR #話題",
+  "count": 50
+}</code>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>🌙 深夜の技術情報</h4>
+                    <p>深夜0時に技術情報を収集</p>
+                    <div class="code-block">
+                        <code>{
+  "name": "技術情報収集",
+  "time": "00:00",
+  "query": "#AI #Python #JavaScript",
+  "count": 40
+}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-section" id="troubleshooting">
+            <h2>🔧 トラブルシューティング</h2>
+
+            <div class="steps">
+                <div class="step">
+                    <h4>🔴 Chrome接続エラー</h4>
+                    <div class="alert alert-error">
+                        <strong>症状:</strong> 🔴 Chrome接続エラーが表示される
+                    </div>
+                    <div class="alert alert-success">
+                        <strong>解決方法:</strong> Chromeを完全終了して、デバッグモードで再起動
+                    </div>
+                    <button class="neomorph-btn" onclick="showSolution('chrome')">解決策を表示</button>
+                </div>
+
+                <div class="step">
+                    <h4>❌ ツイート取得失敗</h4>
+                    <div class="alert alert-warning">
+                        <strong>確認事項:</strong>
+                        <ul>
+                            <li>🌐 ネットワーク接続</li>
+                            <li>🐦 Twitterにログインしているか</li>
+                            <li>🔍 検索クエリが正しいか</li>
+                            <li>🔒 非公開アカウントでないか</li>
+                        </ul>
+                    </div>
+                    <button class="neomorph-btn" onclick="runDiagnostic()">診断実行</button>
+                </div>
+
+                <div class="step">
+                    <h4>⚠️ ファイルアップロード失敗</h4>
+                    <div class="alert alert-info">
+                        <strong>対処法:</strong> Claude.aiページを手動で確認し、新しいチャットを作成
+                    </div>
+                    <button class="neomorph-btn" onclick="showAchievement('🛠️ トラブルシューター')">修復開始</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-section" id="customization">
+            <h2>🎨 カスタマイズ方法</h2>
+
+            <h3>🎭 Claude分析プロンプトテンプレート</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📊 要約特化</h4>
+                    <code>"重要なポイントを3つに絞って要約してください"</code>
+                    <button class="neomorph-btn" onclick="copyPrompt('summary')">コピー</button>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 トレンド分析</h4>
+                    <code>"最新トレンドを分析し、ビジネスチャンスを提案してください"</code>
+                    <button class="neomorph-btn" onclick="copyPrompt('trend')">コピー</button>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 競合分析</h4>
+                    <code>"競合他社の動向から学べることを教えてください"</code>
+                    <button class="neomorph-btn" onclick="copyPrompt('competitor')">コピー</button>
+                </div>
+                <div class="feature-card">
+                    <h4>⚠️ リスク分析</h4>
+                    <code>"潜在的なリスクや注意点があれば指摘してください"</code>
+                    <button class="neomorph-btn" onclick="copyPrompt('risk')">コピー</button>
+                </div>
+            </div>
+
+            <h3>🎮 高度なカスタマイズ</h3>
+            <div class="code-block">
+                <code># 🎯 カスタム検索パターン
+{
+  "name": "🕵️ 競合他社監視",
+  "query": "@competitor1 OR @competitor2",
+  "analysis_prompt": "🔍 競合の戦略を分析してください",
+  "custom_settings": {
+    "priority": "high",
+    "alert_keywords": ["新商品", "買収", "提携"]
+  }
+}</code>
+            </div>
+        </div>
+
+        <div class="glass-section" id="examples">
+            <h2>📊 使用例・活用シーン</h2>
+
+            <h3>🏢 ビジネス情報収集</h3>
+            <div class="alert alert-info">
+                <strong>⏰ タイムスケジュール:</strong><br>
+                🌅 朝8時: 業界ニュース自動取得・分析<br>
+                🌞 昼12時: 競合他社動向チェック<br>
+                🌇 夕方18時: 市場トレンド分析<br>
+                🌙 深夜0時: 1日のまとめレポート生成
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📈 投資情報追跡</h4>
+                    <p>株価・経済指標の動向を24時間監視</p>
+                    <button class="neomorph-btn" onclick="startDemo('investment')">デモ開始</button>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 マーケティング調査</h4>
+                    <p>顧客の声を自動収集・感情分析</p>
+                    <button class="neomorph-btn" onclick="startDemo('marketing')">デモ開始</button>
+                </div>
+                <div class="feature-card">
+                    <h4>💻 技術情報キャッチアップ</h4>
+                    <p>最新の技術トレンドを自動学習</p>
+                    <button class="neomorph-btn" onclick="startDemo('tech')">デモ開始</button>
+                </div>
+                <div class="feature-card">
+                    <h4>🌍 グローバルニュース</h4>
+                    <p>世界中のニュースを多言語で収集</p>
+                    <button class="neomorph-btn" onclick="startDemo('global')">デモ開始</button>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <h3>🎯 完全自動化の達成</h3>
+                <p>このツールを使えば、<strong>🌟 24時間365日完全無人 🌟</strong>でTwitter情報の収集・分析が可能です：</p>
+                <ul>
+                    <li>🌅 <strong>朝:</strong> 最新ニュースの自動収集・要約</li>
+                    <li>🌞 <strong>昼:</strong> 競合他社の動向分析</li>
+                    <li>🌇 <strong>夕方:</strong> 市場トレンドの自動分析</li>
+                    <li>🌙 <strong>夜:</strong> 1日の情報まとめ</li>
+                </ul>
+                <p><strong>🚀 完全自動化により、手動作業ゼロで高品質な情報分析が実現できます！ 🎉</strong></p>
+                <button class="neomorph-btn" onclick="celebrateAutomation()">🎊 自動化を祝う</button>
+            </div>
+        </div>
+
+        <div class="glass-section">
+            <h2>🎊 おめでとうございます！</h2>
+            <div class="alert alert-success">
+                <p>🌟 あなたは今、<strong>Twitter自動化マスター</strong>になりました！ 🎉</p>
+                <p>このマニュアルで不明な点があれば、ログファイルを確認するか、個別の機能をテスト実行してください。</p>
+                <p><strong>🚀 Happy Automating! 🤖✨</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎵 効果音 -->
+    <audio id="clickSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBDmT2Sn7" type="audio/wav">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRt4HAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YboHAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBDmT2S7KeSsFJHfH8N2QQAo" type="audio/wav">
+    </audio>
+
+    <script>
+        // 🎮 ゲーム状態管理
+        let gameState = {
+            comboCount: 0,
+            achievements: [],
+            partyMode: false,
+            soundEnabled: true,
+            particleSystem: null,
+            currentTheme: 'dark'
+        };
+
+        // 🌟 パーティクルシステム初期化
+        function initParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const particleCount = 100;
+            
+            // パーティクル作成
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 3 + 1,
+                    color: `hsl(${Math.random() * 360}, 50%, 50%)`,
+                    life: Math.random() * 100 + 50
+                });
+            }
+            
+            // アニメーションループ
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach((particle, index) => {
+                    // パーティクル更新
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life--;
+                    
+                    // 境界チェック
+                    if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                    
+                    // 描画
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = particle.color;
+                    ctx.globalAlpha = particle.life / 100;
+                    ctx.fill();
+                    
+                    // パーティクル再生成
+                    if (particle.life <= 0) {
+                        particle.x = Math.random() * canvas.width;
+                        particle.y = Math.random() * canvas.height;
+                        particle.life = Math.random() * 100 + 50;
+                        particle.color = `hsl(${Math.random() * 360}, 50%, 50%)`;
+                    }
+                });
+                
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // ✨ 魔法のカーソル
+        function initMagicCursor() {
+            const cursor = document.getElementById('magicCursor');
+            let mouseX = 0, mouseY = 0;
+            
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                cursor.style.left = mouseX + 'px';
+                cursor.style.top = mouseY + 'px';
+                
+                // キラキラエフェクト追加
+                if (Math.random() < 0.1) {
+                    createSparkle(mouseX, mouseY);
+                }
+            });
+        }
+
+        // 🌟 キラキラエフェクト
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1500);
+        }
+
+        // 🎮 プログレスバー更新
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            progressBar.style.width = scrolled + '%';
+        }
+
+        // 🏆 達成バッジ表示
+        function showAchievement(title) {
+            playSound('success');
+            
+            const badge = document.createElement('div');
+            badge.className = 'achievement-badge';
+            badge.innerHTML = `
+                <h2>🏆 ${title}</h2>
+                <p>おめでとうございます！</p>
+            `;
+            document.body.appendChild(badge);
+            
+            setTimeout(() => {
+                badge.style.animation = 'achievementPop 0.5s ease-out reverse forwards';
+                setTimeout(() => badge.remove(), 500);
+            }, 2000);
+            
+            // コンボカウント増加
+            gameState.comboCount++;
+            showComboEffect();
+        }
+
+        // 🔥 コンボエフェクト
+        function showComboEffect() {
+            const comboElement = document.getElementById('comboEffect');
+            const countElement = document.getElementById('comboCount');
+            
+            countElement.textContent = gameState.comboCount;
+            comboElement.style.display = 'block';
+            
+            setTimeout(() => {
+                comboElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // 🎵 効果音再生
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            
+            const sound = type === 'success' ? 
+                document.getElementById('successSound') : 
+                document.getElementById('clickSound');
+            
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(() => {});
+            }
+        }
+
+        // 🎪 パーティーモード
+        function triggerPartyMode() {
+            playSound('success');
+            document.body.classList.add('party-mode');
+            
+            // 5秒後にパーティーモード終了
+            setTimeout(() => {
+                document.body.classList.remove('party-mode');
+            }, 5000);
+            
+            showAchievement('🎉 パーティーマスター');
+        }
+
+        // 🎭 イースターエッグ
+        function initEasterEgg() {
+            const easterEgg = document.getElementById('easterEgg');
+            let clickCount = 0;
+            
+            easterEgg.addEventListener('click', () => {
+                clickCount++;
+                playSound('click');
+                
+                if (clickCount === 1) {
+                    showHiddenQuote();
+                } else if (clickCount === 3) {
+                    triggerPartyMode();
+                } else if (clickCount === 5) {
+                    showAchievement('🕵️ 隠し要素発見者');
+                } else if (clickCount >= 10) {
+                    showAchievement('🎮 クリックマスター');
+                    clickCount = 0;
+                }
+            });
+        }
+
+        // 🎭 隠し名言表示
+        function showHiddenQuote() {
+            const quotes = [
+                "「コードは詩である。バグは...まあ、詩的な表現だ。」 - 匿名の開発者",
+                "「完璧なコードなど存在しない。あるのは動くコードだけだ。」 - 賢者",
+                "「デバッグとは探偵小説を読むようなものだ。あなたが作者で犯人でもある。」 - 哲学者",
+                "「コーヒーをコードに変換するマシン、それが開発者だ。」 - エンジニア",
+                "「エラー404: ユーモアが見つかりません」 - AI"
+            ];
+            
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            const quoteElement = document.getElementById('hiddenQuote');
+            
+            quoteElement.querySelector('p').textContent = randomQuote;
+            quoteElement.classList.add('show');
+            
+            setTimeout(() => {
+                quoteElement.classList.remove('show');
+            }, 5000);
+        }
+
+        // 🌙 テーマ切り替え
+        function toggleTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (gameState.currentTheme === 'dark') {
+                document.documentElement.style.setProperty('--dark-bg', '#f0f0f0');
+                document.documentElement.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.1)');
+                themeToggle.textContent = '☀️ ライト';
+                gameState.currentTheme = 'light';
+            } else {
+                document.documentElement.style.setProperty('--dark-bg', '#0a0a0a');
+                document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.1)');
+                themeToggle.textContent = '🌙 ダーク';
+                gameState.currentTheme = 'dark';
+            }
+            
+            playSound('click');
+            showAchievement('🎨 テーママスター');
+        }
+
+        // 🎵 サウンド切り替え
+        function toggleSound() {
+            const soundToggle = document.getElementById('soundToggle');
+            gameState.soundEnabled = !gameState.soundEnabled;
+            
+            soundToggle.textContent = gameState.soundEnabled ? '🔊 サウンド' : '🔇 ミュート';
+            
+            if (gameState.soundEnabled) {
+                playSound('success');
+            }
+        }
+
+        // 📊 デモ関数群
+        function startDemo(type) {
+            playSound('click');
+            const demoMessages = {
+                investment: '💰 投資デモを開始します！リアルタイム株価データを取得中...',
+                marketing: '📊 マーケティング分析デモを開始！顧客感情を分析中...',
+                tech: '💻 技術情報デモを開始！最新のAIトレンドを検索中...',
+                global: '🌍 グローバルニュースデモを開始！世界のニュースを収集中...'
+            };
+            
+            alert(demoMessages[type]);
+            showAchievement(`🎮 ${type.toUpperCase()}デモマスター`);
+        }
+
+        // 📋 プロンプトコピー
+        function copyPrompt(type) {
+            const prompts = {
+                summary: '重要なポイントを3つに絞って要約してください',
+                trend: '最新トレンドを分析し、ビジネスチャンスを提案してください',
+                competitor: '競合他社の動向から学べることを教えてください',
+                risk: '潜在的なリスクや注意点があれば指摘してください'
+            };
+            
+            navigator.clipboard.writeText(prompts[type]).then(() => {
+                playSound('success');
+                showAchievement('📋 プロンプトマスター');
+            });
+        }
+
+        // 🔧 診断・解決関数群
+        function checkConnection() {
+            playSound('click');
+            alert('🔍 Chrome接続を確認中...\n✅ 接続OK！完璧です！');
+            showAchievement('🔧 接続マスター');
+        }
+
+        function runDiagnostic() {
+            playSound('click');
+            alert('🔍 システム診断を実行中...\n✅ 全てのシステムが正常です！');
+            showAchievement('🛠️ 診断マスター');
+        }
+
+        function showSolution(type) {
+            playSound('click');
+            alert('💡 解決策を表示します！\n1. Chromeを完全終了\n2. デバッグモードで再起動\n3. Claude.aiに再ログイン');
+            showAchievement('🔧 問題解決マスター');
+        }
+
+        function celebrateAutomation() {
+            triggerPartyMode();
+            showAchievement('🚀 自動化マスター');
+        }
+
+        // 📱 その他のUI関数
+        function showQueryExamples() {
+            playSound('click');
+            alert('🔍 検索クエリ例：\n• AI OR 人工知能\n• #Python #JavaScript\n• @elonmusk OR @sundarpichai\n• ニュース -広告 -スパム');
+            showAchievement('🔍 検索マスター');
+        }
+
+        function animateSlider() {
+            playSound('click');
+            alert('🎛️ スライダーでお好みの件数を設定してください！\n推奨: 20-50件');
+            showAchievement('🎛️ 設定マスター');
+        }
+
+        function toggleAnalysis() {
+            playSound('click');
+            alert('🤖 Claude分析を切り替えました！\nAIパワーでより深い洞察を得られます！');
+            showAchievement('🤖 AI活用マスター');
+        }
+
+        // 💫 ローディング管理
+        function hideLoader() {
+            const loader = document.getElementById('loadingSpinner');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 2000);
+        }
+
+        // 🚀 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            initMagicCursor();
+            initEasterEgg();
+            hideLoader();
+            
+            // イベントリスナー
+            window.addEventListener('scroll', updateProgress);
+            document.getElementById('soundToggle').addEventListener('click', toggleSound);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // ウェルカムメッセージ
+            setTimeout(() => {
+                showAchievement('🎉 ようこそマスター！');
+            }, 3000);
+            
+            // リサイズ対応
+            window.addEventListener('resize', () => {
+                const canvas = document.getElementById('particles-canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        });
+    </script>
+</body>
+</html>

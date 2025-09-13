@@ -1,0 +1,102 @@
+{
+  "schedules": [
+    {
+      "name": "朝のニュース分析",
+      "query": "ニュース OR 時事 OR 最新情報",
+      "time": "08:00",
+      "count": 30,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "最新のニュースから重要なトピックを3つ選んで要約してください。それぞれについて背景と影響を簡潔に説明してください。",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+    },
+    {
+      "name": "技術トレンド監視",
+      "query": "#AI OR #Python OR #JavaScript OR #機械学習 OR #DX",
+      "time": "12:00",
+      "count": 25,
+      "format": "json",
+      "claude_analysis": true,
+      "analysis_prompt": "技術トレンドを分析して、今注目すべき技術やツールを教えてください。ビジネスへの影響も含めて説明してください。",
+      "days": ["daily"]
+    },
+    {
+      "name": "競合他社動向",
+      "query": "競合 OR ライバル OR 同業他社",
+      "time": "15:30",
+      "count": 20,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "競合他社の動向を分析し、注意すべきポイントや参考になる施策があれば教えてください。",
+      "days": ["monday", "wednesday", "friday"]
+    },
+    {
+      "name": "マーケティング情報",
+      "query": "マーケティング OR 広告 OR SNS戦略 OR ブランディング",
+      "time": "17:00",
+      "count": 15,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "マーケティングの最新トレンドや成功事例を分析し、実践できそうなアイデアを提案してください。",
+      "days": ["tuesday", "thursday"]
+    },
+    {
+      "name": "業界情報収集",
+      "query": "IT業界 OR テック業界 OR スタートアップ",
+      "time": "19:00",
+      "count": 35,
+      "format": "json",
+      "claude_analysis": false,
+      "days": ["daily"]
+    },
+    {
+      "name": "週末トレンド",
+      "query": "トレンド OR 話題 OR バズ OR 注目",
+      "time": "10:00",
+      "count": 40,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "週末の話題やトレンドを分析し、来週のビジネスや企画に活かせそうな要素があれば教えてください。",
+      "days": ["saturday", "sunday"]
+    },
+        {
+      "name": "特定アカウント監視",
+      "query": "@elonmusk OR @sundarpichai OR @satyanadella",
+      "time": "09:00",
+      "count": 20,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "著名人の発言から、ビジネスや技術のヒントになりそうな内容を抽出してください。",
+      "days": ["monday", "wednesday", "friday"]
+    },
+    {
+      "name": "投資関連情報",
+      "query": "投資 OR 株価 OR 仮想通貨 OR Bitcoin OR 経済",
+      "time": "07:30",
+      "count": 25,
+      "format": "json",
+      "claude_analysis": true,
+      "analysis_prompt": "投資や経済に関する情報を分析し、重要な動向や注意点をまとめてください。",
+      "days": ["daily"]
+    },
+    {
+      "name": "エンタメトレンド",
+      "query": "#エンタメ OR #映画 OR #ゲーム OR #アニメ",
+      "time": "20:00",
+      "count": 30,
+      "format": "txt",
+      "claude_analysis": false,
+      "days": ["friday", "saturday", "sunday"]
+    },
+    {
+      "name": "政治・社会情勢",
+      "query": "政治 OR 選挙 OR 政策 OR 社会問題",
+      "time": "18:30",
+      "count": 20,
+      "format": "txt",
+      "claude_analysis": true,
+      "analysis_prompt": "政治や社会情勢について、客観的な事実を整理し、ビジネスへの影響を分析してください。",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+    }
+  ]
+}

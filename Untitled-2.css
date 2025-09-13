@@ -1,0 +1,2809 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎆🌈💖 超絶激盛り！Twitter スクレイピング + Claude 分析ツール 🪩✨🎪</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff00;
+            --neon-yellow: #ffff00;
+            --neon-purple: #8000ff;
+            --neon-orange: #ff8000;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --gradient-1: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            --gradient-2: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            --gradient-3: linear-gradient(90deg, #ff9a9e, #fecfef, #fecfef);
+            --rainbow: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #00ff00, #0080ff, #8000ff, #ff00ff);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 🎆 花火キャンバス */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 🌟 流れ星キャンバス */
+        #shooting-stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* 🌈 虹キャンバス */
+        #rainbow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* 💖 ハートキャンバス */
+        #hearts-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        /* 🌟 パーティクル背景 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 🪩 ミラーボール */
+        .mirror-ball {
+            position: fixed;
+            top: 10%;
+            right: 10%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #c0c0c0, #808080);
+            border-radius: 50%;
+            z-index: 1000;
+            animation: mirrorBallSpin 3s linear infinite, mirrorBallFloat 4s ease-in-out infinite;
+            box-shadow: 
+                0 0 50px rgba(255, 255, 255, 0.5),
+                inset -20px -20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .mirror-ball::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                #ffffff 0deg 10deg,
+                #e0e0e0 10deg 20deg,
+                #c0c0c0 20deg 30deg,
+                #a0a0a0 30deg 40deg
+            );
+            border-radius: 50%;
+            animation: mirrorBallReflect 2s ease-in-out infinite;
+        }
+
+        /* 🌈 虹エフェクト */
+        .rainbow-effect {
+            position: fixed;
+            top: 20%;
+            left: -20%;
+            width: 140%;
+            height: 300px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 0, 0, 0.7) 10%,
+                rgba(255, 165, 0, 0.7) 20%,
+                rgba(255, 255, 0, 0.7) 30%,
+                rgba(0, 255, 0, 0.7) 40%,
+                rgba(0, 0, 255, 0.7) 50%,
+                rgba(75, 0, 130, 0.7) 60%,
+                rgba(238, 130, 238, 0.7) 70%,
+                transparent 80%
+            );
+            border-radius: 50%;
+            opacity: 0;
+            transform: rotate(-15deg);
+            animation: rainbowAppear 8s ease-in-out infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* ⭐ 星空背景 */
+        .star-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: starTwinkle 10s linear infinite;
+        }
+
+        /* 🎊 紙吹雪 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--rainbow);
+            animation: confettiFall 3s linear infinite;
+            z-index: 7;
+        }
+
+        /* 🦋 蝶々エフェクト */
+        .butterfly {
+            position: fixed;
+            font-size: 2em;
+            z-index: 8;
+            animation: butterflyFly 15s linear infinite;
+        }
+
+        /* 🎪 サーカステント */
+        .circus-tent {
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 150px;
+            background: repeating-linear-gradient(
+                45deg,
+                #ff0000 0px,
+                #ff0000 20px,
+                #ffffff 20px,
+                #ffffff 40px
+            );
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            animation: tentRise 10s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        /* 🌸 花びらエフェクト */
+        .petal {
+            position: fixed;
+            font-size: 1.5em;
+            color: #ffb3ba;
+            z-index: 6;
+            animation: petalFall 8s linear infinite;
+        }
+
+        /* 🎭 マスクエフェクト */
+        .mask {
+            position: fixed;
+            font-size: 3em;
+            z-index: 9;
+            animation: maskDance 6s ease-in-out infinite;
+        }
+
+        /* 🎨 ペイントスプラッシュ */
+        .paint-splash {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--neon-pink), transparent);
+            animation: splashExpand 2s ease-out forwards;
+            z-index: 2;
+        }
+
+        /* ✨ 魔法のカーソル強化版 */
+        .magic-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, var(--neon-blue), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            animation: superPulse 0.5s infinite;
+        }
+
+        .magic-cursor::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--neon-pink);
+            border-radius: 50%;
+            animation: superRotate 1s linear infinite;
+        }
+
+        .magic-cursor::after {
+            content: '✨';
+            position: absolute;
+            top: -40px;
+            left: -10px;
+            font-size: 1.5em;
+            animation: sparkleRotate 2s linear infinite;
+        }
+
+        /* 🎪 サーカスライト */
+        .circus-lights {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--neon-yellow) 0px,
+                var(--neon-pink) 20px,
+                var(--neon-blue) 40px,
+                var(--neon-green) 60px,
+                var(--neon-purple) 80px,
+                var(--neon-orange) 100px
+            );
+            animation: lightsChase 2s linear infinite;
+            z-index: 100;
+        }
+
+        /* 🎠 メリーゴーランド */
+        .carousel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            background: conic-gradient(
+                from 0deg,
+                #ff69b4, #00bfff, #32cd32, #ffd700, #ff6347, #da70d6, #ff69b4
+            );
+            border-radius: 50%;
+            animation: carouselSpin 4s linear infinite;
+            z-index: 10;
+        }
+
+        .carousel::before {
+            content: '🎠';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            animation: carouselHorse 2s ease-in-out infinite;
+        }
+
+        /* 🎪 フェリス観覧車 */
+        .ferris-wheel {
+            position: fixed;
+            top: 20%;
+            left: 20px;
+            width: 80px;
+            height: 80px;
+            border: 5px solid var(--neon-blue);
+            border-radius: 50%;
+            animation: ferrisRotate 8s linear infinite;
+            z-index: 10;
+        }
+
+        .ferris-wheel::before {
+            content: '🎡';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+        }
+
+        /* 🦄 ユニコーンエフェクト */
+        .unicorn {
+            position: fixed;
+            font-size: 3em;
+            z-index: 11;
+            animation: unicornGallop 12s linear infinite;
+        }
+
+        /* 🎈 風船エフェクト */
+        .balloon {
+            position: fixed;
+            font-size: 2em;
+            z-index: 8;
+            animation: balloonFloat 10s ease-in-out infinite;
+        }
+
+        /* 🎪 キラキラ強化版 */
+        .super-sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-yellow);
+            border-radius: 50%;
+            animation: superSparkle 2s ease-in-out infinite;
+        }
+
+        .super-sparkle::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--neon-pink);
+            border-radius: 50%;
+            animation: sparkleRing 1s ease-in-out infinite;
+        }
+
+        /* 🌟 コメット */
+        .comet {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            z-index: 5;
+            animation: cometFly 6s linear infinite;
+        }
+
+        .comet::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), transparent);
+            animation: cometTail 0.5s ease-in-out infinite;
+        }
+
+        /* 🎪 ディスコフロア */
+        .disco-floor {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 0, 255, 0.3) 0px,
+                rgba(0, 255, 255, 0.3) 25px,
+                rgba(255, 255, 0, 0.3) 50px,
+                rgba(0, 255, 0, 0.3) 75px
+            );
+            animation: discoFlash 1s linear infinite;
+            z-index: -1;
+        }
+
+        /* アニメーション定義 */
+        @keyframes mirrorBallSpin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        @keyframes mirrorBallFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes mirrorBallReflect {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes rainbowAppear {
+            0%, 80% { opacity: 0; transform: translateY(100px) rotate(-15deg); }
+            10%, 70% { opacity: 1; transform: translateY(0px) rotate(-15deg); }
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes confettiFall {
+            0% {
+                top: -10px;
+                left: calc(var(--random-x, 50) * 1%);
+                transform: rotateZ(0deg);
+            }
+            100% {
+                top: 110vh;
+                left: calc(var(--random-x, 50) * 1%);
+                transform: rotateZ(720deg);
+            }
+        }
+
+        @keyframes butterflyFly {
+            0% {
+                left: -5%;
+                top: calc(var(--random-y, 50) * 1%);
+                transform: rotate(0deg);
+            }
+            25% {
+                top: calc((var(--random-y, 50) + 20) * 1%);
+                transform: rotate(10deg);
+            }
+            50% {
+                top: calc((var(--random-y, 50) - 10) * 1%);
+                transform: rotate(-5deg);
+            }
+            75% {
+                top: calc((var(--random-y, 50) + 15) * 1%);
+                transform: rotate(8deg);
+            }
+            100% {
+                left: 105%;
+                top: calc(var(--random-y, 50) * 1%);
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes tentRise {
+            0%, 80% { bottom: -50px; }
+            10%, 70% { bottom: 50px; }
+        }
+
+        @keyframes petalFall {
+            0% {
+                top: -10px;
+                left: calc(var(--random-x, 50) * 1%);
+                transform: rotate(0deg);
+            }
+            100% {
+                top: 110vh;
+                left: calc((var(--random-x, 50) + 10) * 1%);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes maskDance {
+            0%, 100% { 
+                left: 10%;
+                transform: rotate(0deg) scale(1);
+            }
+            25% { 
+                left: 30%;
+                transform: rotate(15deg) scale(1.2);
+            }
+            50% { 
+                left: 70%;
+                transform: rotate(-10deg) scale(0.8);
+            }
+            75% { 
+                left: 90%;
+                transform: rotate(20deg) scale(1.1);
+            }
+        }
+
+        @keyframes splashExpand {
+            0% {
+                width: 0px;
+                height: 0px;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes superPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        @keyframes superRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes sparkleRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes lightsChase {
+            0% { background-position: 0px 0px; }
+            100% { background-position: 100px 0px; }
+        }
+
+        @keyframes carouselSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes carouselHorse {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        @keyframes ferrisRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes unicornGallop {
+            0% {
+                left: -10%;
+                bottom: 30%;
+                transform: scaleX(1);
+            }
+            25% {
+                bottom: 35%;
+            }
+            50% {
+                left: 50%;
+                bottom: 25%;
+                transform: scaleX(-1);
+            }
+            75% {
+                bottom: 40%;
+            }
+            100% {
+                left: 110%;
+                bottom: 30%;
+                transform: scaleX(-1);
+            }
+        }
+
+        @keyframes balloonFloat {
+            0% {
+                bottom: -10%;
+                left: calc(var(--random-x, 50) * 1%);
+            }
+            100% {
+                bottom: 110%;
+                left: calc((var(--random-x, 50) + 5) * 1%);
+            }
+        }
+
+        @keyframes superSparkle {
+            0%, 100% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(2) rotate(180deg); 
+            }
+        }
+
+        @keyframes sparkleRing {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+            50% { 
+                opacity: 0.5; 
+                transform: scale(2); 
+            }
+        }
+
+        @keyframes cometFly {
+            0% {
+                top: calc(var(--random-y, 10) * 1%);
+                left: -5%;
+            }
+            100% {
+                top: calc((var(--random-y, 10) + 80) * 1%);
+                left: 105%;
+            }
+        }
+
+        @keyframes cometTail {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes discoFlash {
+            0% { background-position: 0px 0px; }
+            100% { background-position: 100px 100px; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-blue); }
+            50% { box-shadow: 0 0 40px var(--neon-pink), 0 0 60px var(--neon-blue); }
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 🎪 コンテナ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 🚀 ヘッダー強化版 */
+        .header {
+            background: var(--gradient-1);
+            background-size: 400% 400%;
+            animation: rainbow 4s ease infinite;
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 50px rgba(255, 0, 255, 0.5),
+                inset 0 0 50px rgba(255, 255, 255, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--neon-blue), transparent);
+            animation: rotate 6s linear infinite;
+            z-index: -1;
+        }
+
+        .header::after {
+            content: '🎆🌟💖🪩';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5em;
+            font-weight: 900;
+            text-shadow: 
+                0 0 30px var(--neon-blue),
+                0 0 60px var(--neon-pink),
+                0 0 90px var(--neon-yellow);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 3s steps(40) 1s both;
+            background: var(--rainbow);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.4em;
+            opacity: 0.9;
+            animation: float 3s ease-in-out infinite;
+            text-shadow: 0 0 20px var(--neon-green);
+        }
+
+        /* 🎮 プログレスバー強化版 */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--rainbow);
+            background-size: 200% 200%;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: rainbow 2s linear infinite;
+            box-shadow: 
+                0 0 20px var(--neon-blue),
+                0 0 40px var(--neon-pink);
+        }
+
+        /* 🏆 達成バッジ強化版 */
+        .achievement-badge {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--gradient-2);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            z-index: 10000;
+            backdrop-filter: blur(20px);
+            border: 5px solid var(--neon-yellow);
+            box-shadow: 
+                0 0 50px var(--neon-yellow),
+                0 0 100px var(--neon-pink),
+                inset 0 0 30px rgba(255, 255, 255, 0.2);
+            animation: achievementPop 0.5s ease-out forwards;
+        }
+
+        .achievement-badge::before {
+            content: '🎉✨🏆✨🎉';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes achievementPop {
+            0% { 
+                transform: translate(-50%, -50%) scale(0) rotate(180deg); 
+                opacity: 0;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2) rotate(0deg); 
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(0deg); 
+                opacity: 1;
+            }
+        }
+
+        /* 🌈 グラスモーフィズム セクション強化版 */
+        .glass-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: float 6s ease-in-out infinite;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-section:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0, 255, 255, 0.4),
+                0 0 80px var(--neon-pink),
+                inset 0 0 50px rgba(255, 255, 255, 0.2);
+            border-color: var(--neon-blue);
+        }
+
+        .glass-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .glass-section:hover::before {
+            left: 100%;
+        }
+
+        .glass-section::after {
+            content: '✨';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            animation: pulse 2s infinite;
+        }
+
+        /* 🔥 コンボエフェクト強化版 */
+        .combo-effect {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--rainbow);
+            background-size: 400% 400%;
+            animation: rainbow 1s linear infinite;
+            padding: 25px;
+            border-radius: 20px;
+            z-index: 1000;
+            transform: scale(0);
+            animation: comboSlide 0.5s ease-out forwards, rainbow 1s linear infinite;
+            border: 3px solid var(--neon-yellow);
+box-shadow: 
+               0 0 50px var(--neon-yellow),
+               0 0 100px var(--neon-pink);
+       }
+
+       .combo-effect::before {
+           content: '🔥💫⚡🌟';
+           position: absolute;
+           top: -15px;
+           left: 50%;
+           transform: translateX(-50%);
+           font-size: 1.5em;
+           animation: rotate 2s linear infinite;
+       }
+
+       @keyframes comboSlide {
+           0% { transform: scale(0) rotate(180deg); }
+           100% { transform: scale(1) rotate(0deg); }
+       }
+
+       /* ⚡ ニューモーフィズム ボタン強化版 */
+       .neomorph-btn {
+           background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+           border: none;
+           padding: 18px 35px;
+           border-radius: 25px;
+           color: var(--neon-blue);
+           font-weight: 700;
+           cursor: pointer;
+           transition: all 0.3s ease;
+           position: relative;
+           overflow: hidden;
+           box-shadow: 
+               8px 8px 16px rgba(0, 0, 0, 0.8),
+               -8px -8px 16px rgba(255, 255, 255, 0.05),
+               0 0 20px var(--neon-blue);
+           text-shadow: 0 0 10px var(--neon-blue);
+       }
+
+       .neomorph-btn:hover {
+           transform: translateY(-8px) scale(1.05);
+           box-shadow: 
+               15px 15px 30px rgba(0, 0, 0, 0.8),
+               -15px -15px 30px rgba(255, 255, 255, 0.1),
+               0 0 40px var(--neon-blue),
+               0 0 80px var(--neon-pink);
+           color: var(--neon-pink);
+           text-shadow: 0 0 20px var(--neon-pink);
+       }
+
+       .neomorph-btn:active {
+           transform: translateY(2px) scale(0.98);
+       }
+
+       .neomorph-btn::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: -100%;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+           transition: left 0.5s;
+       }
+
+       .neomorph-btn:hover::before {
+           left: 100%;
+       }
+
+       /* 🎨 セクションタイトル強化版 */
+       h2 {
+           font-family: 'Orbitron', monospace;
+           color: var(--neon-pink);
+           font-size: 3em;
+           margin-bottom: 30px;
+           text-align: center;
+           text-shadow: 
+               0 0 30px var(--neon-pink),
+               0 0 60px var(--neon-blue),
+               0 0 90px var(--neon-yellow);
+           position: relative;
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           -webkit-background-clip: text;
+           -webkit-text-fill-color: transparent;
+           background-clip: text;
+           animation: rainbow 3s ease infinite;
+       }
+
+       h2::after {
+           content: '';
+           position: absolute;
+           bottom: -15px;
+           left: 50%;
+           transform: translateX(-50%);
+           width: 150px;
+           height: 5px;
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           border-radius: 3px;
+           animation: rainbow 2s linear infinite, glow 2s infinite;
+       }
+
+       h2::before {
+           content: '🌟✨🎆✨🌟';
+           position: absolute;
+           top: -30px;
+           left: 50%;
+           transform: translateX(-50%);
+           font-size: 0.5em;
+           animation: float 3s ease-in-out infinite;
+       }
+
+       /* 🎯 目次強化版 */
+       .toc {
+           background: rgba(102, 126, 234, 0.15);
+           backdrop-filter: blur(20px);
+           border: 3px solid var(--neon-blue);
+           border-radius: 25px;
+           padding: 35px;
+           margin: 35px 0;
+           position: relative;
+           box-shadow: 
+               0 0 50px rgba(0, 255, 255, 0.3),
+               inset 0 0 30px rgba(255, 255, 255, 0.1);
+       }
+
+       .toc::after {
+           content: '🎯🌟🎪';
+           position: absolute;
+           top: -20px;
+           right: 25px;
+           font-size: 2.5em;
+           animation: pulse 2s infinite;
+       }
+
+       .toc h2 {
+           color: var(--neon-blue);
+           text-shadow: 0 0 25px var(--neon-blue);
+           margin-bottom: 25px;
+       }
+
+       .toc ul {
+           list-style: none;
+       }
+
+       .toc li {
+           margin: 20px 0;
+           transform: translateX(-30px);
+           opacity: 0;
+           animation: slideInLeft 0.8s ease forwards;
+       }
+
+       .toc li:nth-child(1) { animation-delay: 0.1s; }
+       .toc li:nth-child(2) { animation-delay: 0.2s; }
+       .toc li:nth-child(3) { animation-delay: 0.3s; }
+       .toc li:nth-child(4) { animation-delay: 0.4s; }
+       .toc li:nth-child(5) { animation-delay: 0.5s; }
+       .toc li:nth-child(6) { animation-delay: 0.6s; }
+
+       @keyframes slideInLeft {
+           to {
+               transform: translateX(0);
+               opacity: 1;
+           }
+       }
+
+       .toc a {
+           color: var(--neon-green);
+           text-decoration: none;
+           font-weight: 700;
+           transition: all 0.3s ease;
+           position: relative;
+           padding: 15px 20px;
+           border-radius: 15px;
+           display: block;
+           background: rgba(255, 255, 255, 0.05);
+           border: 2px solid transparent;
+       }
+
+       .toc a:hover {
+           color: var(--neon-yellow);
+           background: rgba(255, 255, 0, 0.15);
+           transform: translateX(15px) scale(1.05);
+           text-shadow: 0 0 20px var(--neon-yellow);
+           border-color: var(--neon-yellow);
+           box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+       }
+
+       .toc a::before {
+           content: '🚀';
+           margin-right: 10px;
+           animation: rotate 2s linear infinite;
+       }
+
+       /* 🎯 ステップカウンター強化版 */
+       .steps {
+           counter-reset: step-counter;
+       }
+
+       .step {
+           counter-increment: step-counter;
+           margin: 30px 0;
+           padding: 25px 25px 25px 90px;
+           background: rgba(255, 255, 255, 0.08);
+           border-radius: 20px;
+           position: relative;
+           border: 3px solid rgba(255, 255, 255, 0.1);
+           transition: all 0.4s ease;
+           backdrop-filter: blur(15px);
+           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+       }
+
+       .step:hover {
+           transform: translateX(15px) scale(1.02);
+           border-color: var(--neon-blue);
+           box-shadow: 
+               0 15px 40px rgba(0, 255, 255, 0.4),
+               0 0 60px var(--neon-pink);
+       }
+
+       .step::before {
+           content: counter(step-counter);
+           position: absolute;
+           left: 25px;
+           top: 50%;
+           transform: translateY(-50%);
+           width: 50px;
+           height: 50px;
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           color: white;
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-weight: bold;
+           font-size: 1.5em;
+           box-shadow: 
+               0 0 30px var(--neon-blue),
+               0 0 60px var(--neon-pink);
+           animation: pulse 2s infinite, rainbow 3s linear infinite;
+           border: 3px solid var(--neon-yellow);
+       }
+
+       .step::after {
+           content: '✨';
+           position: absolute;
+           top: 15px;
+           right: 20px;
+           font-size: 1.5em;
+           animation: sparkleRotate 3s linear infinite;
+       }
+
+       /* 🃏 特徴カード強化版 */
+       .feature-grid {
+           display: grid;
+           grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+           gap: 35px;
+           margin: 35px 0;
+       }
+
+       .feature-card {
+           background: rgba(255, 255, 255, 0.1);
+           backdrop-filter: blur(20px);
+           padding: 35px;
+           border-radius: 25px;
+           border: 3px solid rgba(255, 255, 255, 0.1);
+           transition: all 0.5s ease;
+           position: relative;
+           overflow: hidden;
+           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+       }
+
+       .feature-card:hover {
+           transform: translateY(-20px) rotateY(8deg) scale(1.03);
+           border-color: var(--neon-pink);
+           box-shadow: 
+               0 25px 60px rgba(255, 0, 255, 0.4),
+               0 0 80px var(--neon-blue);
+       }
+
+       .feature-card::before {
+           content: '';
+           position: absolute;
+           top: -50%;
+           left: -50%;
+           width: 200%;
+           height: 200%;
+           background: conic-gradient(from 0deg, transparent, var(--neon-pink), transparent);
+           animation: rotate 10s linear infinite;
+           opacity: 0;
+           transition: opacity 0.3s;
+       }
+
+       .feature-card:hover::before {
+           opacity: 0.15;
+       }
+
+       .feature-card::after {
+           content: '🌟';
+           position: absolute;
+           top: 15px;
+           right: 20px;
+           font-size: 2em;
+           animation: pulse 2s infinite;
+       }
+
+       .feature-card h4 {
+           color: var(--neon-pink);
+           margin-bottom: 18px;
+           font-size: 1.4em;
+           text-shadow: 0 0 20px var(--neon-pink);
+           font-weight: 700;
+       }
+
+       /* 📊 テーブル強化版 */
+       table {
+           width: 100%;
+           border-collapse: collapse;
+           margin: 35px 0;
+           background: rgba(255, 255, 255, 0.08);
+           backdrop-filter: blur(15px);
+           border-radius: 20px;
+           overflow: hidden;
+           border: 3px solid rgba(255, 255, 255, 0.2);
+           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+       }
+
+       th, td {
+           padding: 18px;
+           text-align: left;
+           border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+       }
+
+       th {
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           animation: rainbow 4s linear infinite;
+           color: white;
+           font-weight: 800;
+           text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+           position: relative;
+       }
+
+       th::after {
+           content: '✨';
+           margin-left: 10px;
+           animation: sparkleRotate 2s linear infinite;
+       }
+
+       tr:hover {
+           background: rgba(255, 255, 255, 0.15);
+           transform: scale(1.02);
+           box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+       }
+
+       /* 🚨 アラート強化版 */
+       .alert {
+           padding: 25px;
+           margin: 25px 0;
+           border-radius: 20px;
+           border-left: 8px solid;
+           position: relative;
+           backdrop-filter: blur(15px);
+           animation: slideInRight 0.8s ease;
+           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+       }
+
+       @keyframes slideInRight {
+           from { transform: translateX(100px); opacity: 0; }
+           to { transform: translateX(0); opacity: 1; }
+       }
+
+       .alert::before {
+           content: '⚡';
+           position: absolute;
+           top: 15px;
+           right: 20px;
+           font-size: 2em;
+           animation: pulse 2s infinite;
+       }
+
+       .alert-info {
+           background: rgba(49, 130, 206, 0.25);
+           border-color: var(--neon-blue);
+           color: var(--neon-blue);
+           box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+       }
+
+       .alert-info::before { content: '💡'; }
+
+       .alert-success {
+           background: rgba(56, 178, 172, 0.25);
+           border-color: var(--neon-green);
+           color: var(--neon-green);
+           box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+       }
+
+       .alert-success::before { content: '🎉'; }
+
+       .alert-warning {
+           background: rgba(237, 137, 54, 0.25);
+           border-color: var(--neon-yellow);
+           color: var(--neon-yellow);
+           box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+       }
+
+       .alert-warning::before { content: '⚠️'; }
+
+       .alert-error {
+           background: rgba(229, 62, 62, 0.25);
+           border-color: var(--neon-pink);
+           color: var(--neon-pink);
+           box-shadow: 0 0 30px rgba(255, 0, 255, 0.3);
+       }
+
+       .alert-error::before { content: '🚨'; }
+
+       /* 🎪 コードブロック強化版 */
+       .code-block {
+           background: rgba(0, 0, 0, 0.9);
+           border: 3px solid var(--neon-green);
+           border-radius: 20px;
+           padding: 30px;
+           margin: 25px 0;
+           position: relative;
+           overflow: hidden;
+           backdrop-filter: blur(15px);
+           box-shadow: 
+               0 10px 40px rgba(0, 0, 0, 0.5),
+               0 0 50px rgba(0, 255, 0, 0.3);
+       }
+
+       .code-block::before {
+           content: '💻✨';
+           position: absolute;
+           top: 15px;
+           right: 20px;
+           font-size: 2em;
+           animation: pulse 2s infinite;
+       }
+
+       .code-block::after {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: -100%;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+           animation: codeScroll 3s ease-in-out infinite;
+       }
+
+       @keyframes codeScroll {
+           0%, 100% { left: -100%; }
+           50% { left: 100%; }
+       }
+
+       .code-block code {
+           color: var(--neon-green);
+           font-family: 'Courier New', monospace;
+           text-shadow: 0 0 15px var(--neon-green);
+           font-size: 1.1em;
+           line-height: 1.6;
+       }
+
+       /* 🎵 サウンド切り替え強化版 */
+       .sound-toggle, .theme-toggle {
+           position: fixed;
+           z-index: 1000;
+           background: rgba(255, 255, 255, 0.15);
+           backdrop-filter: blur(20px);
+           border: 3px solid var(--neon-blue);
+           border-radius: 50px;
+           padding: 15px 25px;
+           color: var(--neon-blue);
+           cursor: pointer;
+           transition: all 0.4s ease;
+           font-weight: 700;
+           text-shadow: 0 0 10px var(--neon-blue);
+           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+       }
+
+       .sound-toggle {
+           top: 30px;
+           left: 30px;
+       }
+
+       .theme-toggle {
+           top: 100px;
+           left: 30px;
+           border-color: var(--neon-yellow);
+           color: var(--neon-yellow);
+           text-shadow: 0 0 10px var(--neon-yellow);
+       }
+
+       .sound-toggle:hover, .theme-toggle:hover {
+           transform: scale(1.15);
+           box-shadow: 
+               0 15px 40px rgba(0, 0, 0, 0.4),
+               0 0 60px var(--neon-blue);
+       }
+
+       .theme-toggle:hover {
+           box-shadow: 
+               0 15px 40px rgba(0, 0, 0, 0.4),
+               0 0 60px var(--neon-yellow);
+       }
+
+       /* 🎪 イースターエッグ強化版 */
+       .easter-egg {
+           position: fixed;
+           bottom: 30px;
+           right: 30px;
+           width: 80px;
+           height: 80px;
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           cursor: pointer;
+           font-size: 2.5em;
+           animation: float 3s ease-in-out infinite, rainbow 3s linear infinite;
+           z-index: 1000;
+           border: 4px solid var(--neon-yellow);
+           box-shadow: 
+               0 10px 40px rgba(0, 0, 0, 0.4),
+               0 0 60px var(--neon-pink);
+           transition: all 0.3s ease;
+       }
+
+       .easter-egg:hover {
+           animation: rotate 1s linear infinite, rainbow 0.5s linear infinite;
+           transform: scale(1.2);
+           box-shadow: 
+               0 15px 50px rgba(0, 0, 0, 0.5),
+               0 0 100px var(--neon-pink),
+               0 0 150px var(--neon-blue);
+       }
+
+       /* 🎭 隠し要素強化版 */
+       .hidden-quote {
+           position: fixed;
+           bottom: -150px;
+           left: 50%;
+           transform: translateX(-50%);
+           background: var(--rainbow);
+           background-size: 400% 400%;
+           animation: rainbow 2s linear infinite;
+           padding: 30px;
+           border-radius: 20px;
+           transition: bottom 0.8s ease;
+           z-index: 1000;
+           text-align: center;
+           max-width: 500px;
+           border: 4px solid var(--neon-yellow);
+           box-shadow: 
+               0 20px 60px rgba(0, 0, 0, 0.5),
+               0 0 80px var(--neon-pink);
+       }
+
+       .hidden-quote.show {
+           bottom: 30px;
+       }
+
+       .hidden-quote::before {
+           content: '🎭✨🌟✨🎭';
+           position: absolute;
+           top: -25px;
+           left: 50%;
+           transform: translateX(-50%);
+           font-size: 2em;
+           animation: float 2s ease-in-out infinite;
+       }
+
+       /* 💫 ローディングスピナー強化版 */
+       .loading-spinner {
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           width: 100px;
+           height: 100px;
+           border: 6px solid rgba(255, 255, 255, 0.1);
+           border-top: 6px solid var(--neon-blue);
+           border-right: 6px solid var(--neon-pink);
+           border-bottom: 6px solid var(--neon-green);
+           border-left: 6px solid var(--neon-yellow);
+           border-radius: 50%;
+           animation: superSpin 1s linear infinite;
+           z-index: 10000;
+           box-shadow: 
+               0 0 50px var(--neon-blue),
+               inset 0 0 30px rgba(255, 255, 255, 0.1);
+       }
+
+       .loading-spinner::before {
+           content: '🚀';
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           font-size: 2em;
+           animation: rotate 2s linear infinite reverse;
+       }
+
+       @keyframes superSpin {
+           0% { transform: translate(-50%, -50%) rotate(0deg); }
+           100% { transform: translate(-50%, -50%) rotate(360deg); }
+       }
+
+       /* 🎊 パーティーモード強化版 */
+       .party-mode {
+           animation: rainbow 0.3s infinite, shake 0.1s infinite;
+       }
+
+       .party-mode * {
+           animation: shake 0.1s infinite, rainbow 0.5s infinite;
+       }
+
+       .party-mode .header {
+           animation: partyHeader 0.5s infinite;
+       }
+
+       @keyframes partyHeader {
+           0%, 100% { transform: scale(1) rotate(0deg); }
+           25% { transform: scale(1.05) rotate(2deg); }
+           50% { transform: scale(1.1) rotate(-1deg); }
+           75% { transform: scale(1.03) rotate(1deg); }
+       }
+
+       @keyframes shake {
+           0%, 100% { transform: translateX(0); }
+           25% { transform: translateX(-3px) rotate(1deg); }
+           75% { transform: translateX(3px) rotate(-1deg); }
+       }
+
+       /* 📱 モバイル最適化 */
+       @media (max-width: 768px) {
+           .magic-cursor { display: none; }
+           .mirror-ball { width: 60px; height: 60px; top: 5%; right: 5%; }
+           .feature-grid { grid-template-columns: 1fr; }
+           .sound-toggle, .theme-toggle { 
+               position: relative; 
+               top: auto; 
+               left: auto; 
+               margin: 15px; 
+               display: inline-block;
+           }
+           .header h1 { font-size: 2.2em; }
+           .glass-section { padding: 25px; margin: 25px 0; }
+           .container { padding: 15px; }
+           .easter-egg { width: 60px; height: 60px; font-size: 2em; }
+           .carousel, .ferris-wheel { display: none; }
+       }
+
+       /* 🎪 特別エフェクト追加 */
+       .laser-beam {
+           position: fixed;
+           width: 2px;
+           height: 100vh;
+           background: linear-gradient(to bottom, transparent, var(--neon-pink), transparent);
+           animation: laserSweep 4s linear infinite;
+           z-index: 3;
+       }
+
+       @keyframes laserSweep {
+           0% { left: -10px; opacity: 0; }
+           10% { opacity: 1; }
+           90% { opacity: 1; }
+           100% { left: 100vw; opacity: 0; }
+       }
+
+       .hologram-effect {
+           position: relative;
+       }
+
+       .hologram-effect::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: 0;
+           right: 0;
+           bottom: 0;
+           background: repeating-linear-gradient(
+               0deg,
+               transparent 0px,
+               rgba(0, 255, 255, 0.1) 1px,
+               transparent 2px,
+               transparent 4px
+           );
+           animation: hologramScan 2s linear infinite;
+           pointer-events: none;
+       }
+
+       @keyframes hologramScan {
+           0% { transform: translateY(-100%); }
+           100% { transform: translateY(100%); }
+       }
+
+       /* 🌪️ トルネードエフェクト */
+       .tornado {
+           position: fixed;
+           width: 100px;
+           height: 100px;
+           border-radius: 50%;
+           background: conic-gradient(
+               from 0deg,
+               transparent, var(--neon-blue), transparent, var(--neon-pink), transparent
+           );
+           animation: tornadoSpin 1s linear infinite, tornadoMove 8s ease-in-out infinite;
+           z-index: 4;
+       }
+
+       @keyframes tornadoSpin {
+           from { transform: rotate(0deg); }
+           to { transform: rotate(360deg); }
+       }
+
+       @keyframes tornadoMove {
+           0%, 100% { left: -100px; top: 20%; }
+           25% { left: 25%; top: 60%; }
+           50% { left: 75%; top: 30%; }
+           75% { left: 50%; top: 70%; }
+       }
+   </style>
+</head>
+<body>
+   <!-- 🌟 全キャンバス -->
+   <canvas id="particles-canvas"></canvas>
+   <canvas id="fireworks-canvas"></canvas>
+   <canvas id="shooting-stars-canvas"></canvas>
+   <canvas id="rainbow-canvas"></canvas>
+   <canvas id="hearts-canvas"></canvas>
+   
+   <!-- 🌟 星空背景 -->
+   <div class="star-field"></div>
+   
+   <!-- ✨ 魔法のカーソル -->
+   <div class="magic-cursor" id="magicCursor"></div>
+   
+   <!-- 🎮 プログレスバー -->
+   <div class="progress-container">
+       <div class="progress-bar" id="progressBar"></div>
+   </div>
+   
+   <!-- 🎪 特殊エフェクト要素 -->
+   <div class="mirror-ball"></div>
+   <div class="rainbow-effect"></div>
+   <div class="circus-tent"></div>
+   <div class="circus-lights"></div>
+   <div class="carousel"></div>
+   <div class="ferris-wheel"></div>
+   <div class="disco-floor"></div>
+   <div class="laser-beam"></div>
+   <div class="tornado"></div>
+   
+   <!-- 🎵 コントロール -->
+   <div class="sound-toggle" id="soundToggle">🔊 サウンド</div>
+   <div class="theme-toggle" id="themeToggle">🌙 テーマ</div>
+   
+   <!-- 🎪 イースターエッグ -->
+   <div class="easter-egg" id="easterEgg">🎉</div>
+   
+   <!-- 🔥 コンボエフェクト -->
+   <div class="combo-effect" id="comboEffect" style="display: none;">
+       <h3>🔥 COMBO x<span id="comboCount">1</span>！</h3>
+   </div>
+   
+   <!-- 💫 ローディングスピナー -->
+   <div class="loading-spinner" id="loadingSpinner"></div>
+   
+   <!-- 🎭 隠し名言 -->
+   <div class="hidden-quote" id="hiddenQuote">
+       <p>"コードは詩である。バグは...まあ、詩的な表現だ。" - 匿名の開発者</p>
+   </div>
+
+   <!-- 🎵 効果音 -->
+   <audio id="clickSound" preload="auto">
+       <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBDmT2Sn7" type="audio/wav">
+   </audio>
+   <audio id="successSound" preload="auto">
+       <source src="data:audio/wav;base64,UklGRt4HAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YboHAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBDmT2S7KeSsFJHfH8N2QQAo" type="audio/wav">
+   </audio>
+   <audio id="fireworkSound" preload="auto">
+       <source src="data:audio/wav;base64,UklGRiQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAEAAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//wAAf/8AAH//AAB//w==" type="audio/wav">
+   </audio>
+
+   <div class="container">
+       <div class="header hologram-effect">
+           <h1>🐦✨ Twitter スクレイピング + Claude 分析ツール 🚀🎮</h1>
+           <p>🌟 完全自動化対応 超絶激盛りマニュアル 🎊🪩🌈</p>
+       </div>
+
+       <div class="toc glass-section hologram-effect">
+           <h2>🎯 目次</h2>
+           <ul>
+               <li><a href="#setup">🚀 初期セットアップ</a></li>
+               <li><a href="#gui">🖥️ GUI版の使い方</a></li>
+               <li><a href="#scheduler">⏰ スケジューラー版の使い方</a></li>
+               <li><a href="#troubleshooting">🔧 トラブルシューティング</a></li>
+               <li><a href="#customization">🎨 カスタマイズ方法</a></li>
+               <li><a href="#examples">📊 使用例・活用シーン</a></li>
+           </ul>
+       </div>
+
+       <div class="glass-section hologram-effect" id="setup">
+           <h2>🚀 初期セットアップ</h2>
+           
+           <h3>🛠️ 環境準備</h3>
+           <div class="code-block">
+               <code># 🎯 プロジェクトディレクトリに移動
+cd C:\F\project_root\app_workspaces\X_query
+
+# 🌟 仮想環境をアクティベート
+source venv/bin/activate  # Linux/Mac
+# または
+venv\Scripts\activate     # Windows
+
+# 🚀 必要なライブラリをインストール
+pip install -r requirements.txt
+pip install schedule</code>
+           </div>
+
+           <div class="steps">
+               <div class="step">開いたChromeで <code>https://claude.ai</code> にアクセス</div>
+               <div class="step">ログイン完了まで手動で行う</div>
+               <div class="step">ログイン状態を保持したまま放置</div>
+           </div>
+       </div>
+
+       <div class="glass-section hologram-effect" id="gui">
+           <h2>🖥️ GUI版の使い方</h2>
+           
+           <div class="feature-grid">
+               <div class="feature-card">
+                   <h4>📁 ファイルを開く</h4>
+                   <p>取得したツイートファイルを直接開きます</p>
+                   <button class="neomorph-btn" onclick="showAchievement('📁 ファイルマスター')">試してみる</button>
+               </div>
+               <div class="feature-card">
+                   <h4>📂 フォルダを開く</h4>
+                   <p>保存されたフォルダをエクスプローラーで開きます</p>
+                   <button class="neomorph-btn" onclick="showAchievement('📂 フォルダエクスプローラー')">試してみる</button>
+               </div>
+               <div class="feature-card">
+                   <h4>📤 Claudeで分析</h4>
+                   <p>既存ファイルをClaudeにアップロードして追加分析</p>
+                   <button class="neomorph-btn" onclick="showAchievement('🤖 AI分析マスター')">試してみる</button>
+               </div>
+               <div class="feature-card">
+                   <h4>🎯 実行ボタン</h4>
+                   <p>設定完了後、この魔法のボタンで実行！</p>
+                   <button class="neomorph-btn" onclick="triggerMegaPartyMode()">🎆 MEGA EXECUTE! 🎆</button>
+               </div>
+           </div>
+       </div>
+
+       <div class="glass-section hologram-effect" id="examples">
+           <h2>📊 使用例・活用シーン</h2>
+
+           <div class="alert alert-success">
+               <h3>🎯 完全自動化の達成</h3>
+               <p>このツールを使えば、<strong>🌟 24時間365日完全無人 🌟</strong>でTwitter情報の収集・分析が可能です：</p>
+               <ul>
+                   <li>🌅 <strong>朝:</strong> 最新ニュースの自動収集・要約</li>
+                   <li>🌞 <strong>昼:</strong> 競合他社の動向分析</li>
+                   <li>🌇 <strong>夕方:</strong> 市場トレンドの自動分析</li>
+                   <li>🌙 <strong>夜:</strong> 1日の情報まとめ</li>
+               </ul>
+               <p><strong>🚀 完全自動化により、手動作業ゼロで高品質な情報分析が実現できます！ 🎉</strong></p>
+               <button class="neomorph-btn" onclick="celebrateAutomation()">🎊 自動化を祝う</button>
+           </div>
+       </div>
+
+       <div class="glass-section hologram-effect">
+           <h2>🎊 おめでとうございます！</h2>
+           <div class="alert alert-success">
+               <p>🌟 あなたは今、<strong>Twitter自動化マスター</strong>になりました！ 🎉</p>
+               <p>このマニュアルで不明な点があれば、ログファイルを確認するか、個別の機能をテスト実行してください。</p>
+               <p><strong>🚀 Happy Automating! 🤖✨</strong></p>
+               <button class="neomorph-btn" onclick="triggerGrandFinale()">🎆 グランドフィナーレ！ 🎆</button>
+           </div>
+       </div>
+   </div>
+
+   <script>
+       // 🎮 ゲーム状態管理
+       let gameState = {
+           comboCount: 0,
+           achievements: [],
+           partyMode: false,
+           soundEnabled: true,
+           particleSystem: null,
+           currentTheme: 'dark',
+           fireworksActive: false,
+           rainbowActive: false,
+           heartsActive: false
+       };
+
+       // 🎆 花火システム
+       function initFireworks() {
+           const canvas = document.getElementById('fireworks-canvas');
+           const ctx = canvas.getContext('2d');
+           canvas.width = window.innerWidth;
+           canvas.height = window.innerHeight;
+           
+           const fireworks = [];
+           
+           function createFirework(x, y) {
+               const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
+               const particles = [];
+               
+               for (let i = 0; i < 30; i++) {
+                   particles.push({
+                       x: x,
+                       y: y,
+                       vx: (Math.random() - 0.5) * 10,
+                       vy: (Math.random() - 0.5) * 10,
+                       color: colors[Math.floor(Math.random() * colors.length)],
+                       life: 60,
+                       gravity: 0.1
+                   });
+               }
+               
+               fireworks.push(particles);
+               playSound('firework');
+           }
+           
+           function animateFireworks() {
+               ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+               ctx.fillRect(0, 0, canvas.width, canvas.height);
+               
+               fireworks.forEach((firework, fIndex) => {
+                   firework.forEach((particle, pIndex) => {
+                       particle.x += particle.vx;
+                       particle.y += particle.vy;
+                       particle.vy += particle.gravity;
+                       particle.life--;
+                       
+                       ctx.beginPath();
+                       ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+                       ctx.fillStyle = particle.color;
+                       ctx.globalAlpha = particle.life / 60;
+                       ctx.fill();
+                       
+                       if (particle.life <= 0) {
+                           firework.splice(pIndex, 1);
+                       }
+                   });
+                   
+                   if (firework.length === 0) {
+                       fireworks.splice(fIndex, 1);
+                   }
+               });
+               
+               ctx.globalAlpha = 1;
+               
+               if (gameState.fireworksActive) {
+                   requestAnimationFrame(animateFireworks);
+               }
+           }
+           
+           // 定期的に花火を打ち上げ
+           function launchRandomFirework() {
+               if (gameState.fireworksActive) {
+                   createFirework(
+                       Math.random() * canvas.width,
+                       Math.random() * canvas.height * 0.5
+                   );
+                   setTimeout(launchRandomFirework, Math.random() * 2000 + 1000);
+               }
+           }
+           
+           gameState.fireworksActive = true;
+           animateFireworks();
+           launchRandomFirework();
+       }
+
+       // 🌟 流れ星システム
+       function initShootingStars() {
+           const canvas = document.getElementById('shooting-stars-canvas');
+           const ctx = canvas.getContext('2d');
+           canvas.width = window.innerWidth;
+           canvas.height = window.innerHeight;
+           
+           const stars = [];
+           
+           function createShootingStar() {
+               stars.push({
+                   x: Math.random() * canvas.width,
+                   y: -10,
+                   vx: (Math.random() - 0.5) * 3,
+                   vy: Math.random() * 5 + 2,
+                   length: Math.random() * 50 + 20,
+                   opacity: 1
+               });
+           }
+           
+           function animateShootingStars() {
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+               
+               stars.forEach((star, index) => {
+                   // 流れ星の軌跡を描画
+                   ctx.beginPath();
+                   ctx.moveTo(star.x, star.y);
+                   ctx.lineTo(star.x - star.vx * star.length, star.y - star.vy * star.length);
+                   ctx.strokeStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                   ctx.lineWidth = 2;
+                   ctx.stroke();
+                   
+                   // 流れ星の先端
+                   ctx.beginPath();
+                   ctx.arc(star.x, star.y, 3, 0, Math.PI * 2);
+                   ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                   ctx.fill();
+                   
+                   star.x += star.vx;
+                   star.y += star.vy;
+                   star.opacity -= 0.01;
+                   
+                   if (star.y > canvas.height || star.opacity <= 0) {
+                       stars.splice(index, 1);
+                   }
+               });
+               
+               requestAnimationFrame(animateShootingStars);
+           }
+           
+           // 定期的に流れ星を生成
+           setInterval(createShootingStar, 3000);
+           animateShootingStars();
+       }
+
+       // 💖 ハートシステム
+       function initHearts() {
+           const canvas = document.getElementById('hearts-canvas');
+           const ctx = canvas.getContext('2d');
+           canvas.width = window.innerWidth;
+           canvas.height = window.innerHeight;
+           
+           const hearts = [];
+           
+           function createHeart(x, y) {
+               hearts.push({
+                   x: x,
+                   y: y,
+                   vx: (Math.random() - 0.5) * 2,
+                   vy: -Math.random() * 3 - 1,
+                   size: Math.random() * 20 + 10,
+                   rotation: Math.random() * 360,
+                   rotationSpeed: (Math.random() - 0.5) * 5,
+                   opacity: 1,
+                   color: `hsl(${Math.random() * 60 + 300}, 70%, 60%)`
+               });
+           }
+           
+           function drawHeart(ctx, x, y, size, rotation, opacity, color) {
+               ctx.save();
+               ctx.translate(x, y);
+               ctx.rotate(rotation * Math.PI / 180);
+               ctx.globalAlpha = opacity;
+               
+               ctx.beginPath();
+               ctx.fillStyle = color;
+               
+               // ハートの形を描画
+               const heartPath = new Path2D();
+               heartPath.moveTo(0, size * 0.3);
+               heartPath.bezierCurveTo(-size * 0.5, -size * 0.2, -size * 0.5, size * 0.2, 0, size * 0.7);
+               heartPath.bezierCurveTo(size * 0.5, size * 0.2, size * 0.5, -size * 0.2, 0, size * 0.3);
+               
+               ctx.fill(heartPath);
+               ctx.restore();
+           }
+           
+           function animateHearts() {
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+               
+               hearts.forEach((heart, index) => {
+                   drawHeart(ctx, heart.x, heart.y, heart.size, heart.rotation, heart.opacity, heart.color);
+                   
+                   heart.x += heart.vx;
+                   heart.y += heart.vy;
+                   heart.rotation += heart.rotationSpeed;
+                   heart.opacity -= 0.01;
+                   
+                   if (heart.y < -50 || heart.opacity <= 0) {
+                       hearts.splice(index, 1);
+                   }
+               });
+               
+               if (gameState.heartsActive) {
+                   requestAnimationFrame(animateHearts);
+               }
+           }
+           
+           // マウスクリックでハート生成
+           document.addEventListener('click', (e) => {
+               if (gameState.heartsActive) {
+                   createHeart(e.clientX, e.clientY);
+               }
+           });
+           
+           gameState.heartsActive = true;
+           animateHearts();
+       }
+
+       // 🌈 虹システム
+       function initRainbow() {
+           const canvas = document.getElementById('rainbow-canvas');
+           const ctx = canvas.getContext('2d');
+           canvas.width = window.innerWidth;
+           canvas.height = window.innerHeight;
+           
+           function drawRainbow() {
+               if (!gameState.rainbowActive) return;
+               
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+               
+               const centerX = canvas.width / 2;
+               const centerY = canvas.height;
+               const colors = ['#ff0000', '#ff8000', '#ffff00', '#00ff00', '#0080ff', '#8000ff', '#ff00ff'];
+               
+               colors.forEach((color, index) => {
+                   const radius = 300 + index * 30;
+                   ctx.beginPath();
+                   ctx.arc(centerX, centerY, radius, Math.PI, 0);
+                   ctx.strokeStyle = color;
+                   ctx.lineWidth = 20;
+                   ctx.globalAlpha = 0.7;
+                   ctx.stroke();
+               });
+               
+               ctx.globalAlpha = 1;
+               requestAnimationFrame(drawRainbow);
+           }
+           
+           gameState.rainbowActive = true;
+           drawRainbow();
+       }
+
+       // 🌟 強化されたパーティクルシステム
+       function initSuperParticles() {
+           const canvas = document.getElementById('particles-canvas');
+           const ctx = canvas.getContext('2d');
+           
+           canvas.width = window.innerWidth;
+           canvas.height = window.innerHeight;
+           
+           const particles = [];
+           const particleCount = 200;
+           
+           for (let i = 0; i < particleCount; i++) {
+               particles.push({
+                   x: Math.random() * canvas.width,
+                   y: Math.random() * canvas.height,
+                   vx: (Math.random() - 0.5) * 3,
+                   vy: (Math.random() - 0.5) * 3,
+                   size: Math.random() * 4 + 1,
+                   color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+                   life: Math.random() * 100 + 50,
+                   trail: []
+               });
+           }
+           
+           function animate() {
+               ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+               ctx.fillRect(0, 0, canvas.width, canvas.height);
+               
+               particles.forEach((particle, index) => {
+                   // 軌跡を記録
+                   particle.trail.push({ x: particle.x, y: particle.y });
+                   if (particle.trail.length > 10) {
+                       particle.trail.shift();
+                   }
+                   
+                   // 軌跡を描画
+                   particle.trail.forEach((point, trailIndex) => {
+                       ctx.beginPath();
+                       ctx.arc(point.x, point.y, particle.size * (trailIndex / 10), 0, Math.PI * 2);
+                       ctx.fillStyle = particle.color;
+                       ctx.globalAlpha = trailIndex / 10 * 0.5;
+                       ctx.fill();
+                   });
+                   
+                   // パーティクル本体
+                   ctx.beginPath();
+                   ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                   ctx.fillStyle = particle.color;
+                   ctx.globalAlpha = 1;
+                   ctx.fill();
+                   
+                   // パーティクル更新
+                   particle.x += particle.vx;
+                   particle.y += particle.vy;
+                   particle.life--;
+                   
+                   // 境界チェック
+                   if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                   if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                   
+                   // パーティクル再生成
+                   if (particle.life <= 0) {
+                       particle.x = Math.random() * canvas.width;
+                       particle.y = Math.random() * canvas.height;
+                       particle.life = Math.random() * 100 + 50;
+                       particle.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                       particle.trail = [];
+                   }
+               });
+               
+               ctx.globalAlpha = 1;
+               requestAnimationFrame(animate);
+           }
+           
+           animate();
+       }
+
+       // 🎪 動的要素生成関数
+       function createConfetti() {
+           for (let i = 0; i < 50; i++) {
+               setTimeout(() => {
+                   const confetti = document.createElement('div');
+                   confetti.className = 'confetti';
+                   confetti.style.left = Math.random() * 100 + '%';
+                   confetti.style.setProperty('--random-x', Math.random() * 100);
+                   confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                   confetti.style.animationDelay = Math.random() * 2 + 's';
+                   document.body.appendChild(confetti);
+                   
+                   setTimeout(() => confetti.remove(), 3000);
+               }, i * 50);
+           }
+       }
+
+       function createButterflies() {
+           const butterflies = ['🦋', '🧚‍♀️', '🧚‍♂️', '🧚'];
+           for (let i = 0; i < 5; i++) {
+               setTimeout(() => {
+                   const butterfly = document.createElement('div');
+                   butterfly.className = 'butterfly';
+                   butterfly.textContent = butterflies[Math.floor(Math.random() * butterflies.length)];
+                   butterfly.style.setProperty('--random-y', Math.random() * 80 + 10);
+                   butterfly.style.animationDelay = Math.random() * 5 + 's';
+                   document.body.appendChild(butterfly);
+                   
+                   setTimeout(() => butterfly.remove(), 15000);
+               }, i * 1000);
+           }
+       }
+
+       function createPetals() {
+           const petals = ['🌸', '🌺', '🌻', '🌹', '🌷'];
+           for (let i = 0; i < 20; i++) {
+               setTimeout(() => {
+                   const petal = document.createElement('div');
+                   petal.className = 'petal';
+                   petal.textContent = petals[Math.floor(Math.random() * petals.length)];
+                   petal.style.setProperty('--random-x', Math.random() * 100);
+                   petal.style.animationDelay = Math.random() * 3 + 's';
+                   document.body.appendChild(petal);
+                   
+                   setTimeout(() => petal.remove(), 8000);
+               }, i * 200);
+           }
+       }
+
+       function createMasks() {
+           const masks = ['🎭', '🎪', '🎨', '🎊', '🎉'];
+           for (let i = 0; i < 3; i++) {
+               setTimeout(() => {
+                   const mask = document.createElement('div');
+                   mask.className = 'mask';
+                   mask.textContent = masks[Math.floor(Math.random() * masks.length)];
+                   mask.style.top = Math.random() * 80 + 10 + '%';
+                   document.body.appendChild(mask);
+                   
+                   setTimeout(() => mask.remove(), 6000);
+               }, i * 2000);
+           }
+       }
+
+       function createUnicorn() {
+           const unicorn = document.createElement('div');
+           unicorn.className = 'unicorn';
+           unicorn.textContent = '🦄';
+           document.body.appendChild(unicorn);
+           
+           setTimeout(() => unicorn.remove(), 12000);
+       }
+
+       function createBalloons() {
+           const balloons = ['🎈', '🎀', '🎁', '🎂'];
+           for (let i = 0; i < 8; i++) {
+               setTimeout(() => {
+                   const balloon = document.createElement('div');
+                   balloon.className = 'balloon';
+                   balloon.textContent = balloons[Math.floor(Math.random() * balloons.length)];
+                   balloon.style.setProperty('--random-x', Math.random() * 90 + 5);
+                   balloon.style.animationDelay = Math.random() * 2 + 's';
+                   document.body.appendChild(balloon);
+                   
+                   setTimeout(() => balloon.remove(), 10000);
+               }, i * 500);
+           }
+       }
+
+       function createComets() {
+           for (let i = 0; i < 10; i++) {
+               setTimeout(() => {
+                   const comet = document.createElement('div');
+                   comet.className = 'comet';
+                   comet.style.setProperty('--random-y', Math.random() * 30);
+                   document.body.appendChild(comet);
+                   
+                   setTimeout(() => comet.remove(), 6000);
+               }, i * 600);
+           }
+       }
+
+       function createPaintSplashes() {
+           for (let i = 0; i < 15; i++) {
+               setTimeout(() => {
+                   const splash = document.createElement('div');
+                   splash.className = 'paint-splash';
+                   splash.style.left = Math.random() * 100 + '%';
+                   splash.style.top = Math.random() * 100 + '%';
+                   splash.style.background = `radial-gradient(circle, hsl(${Math.random() * 360}, 70%, 60%), transparent)`;
+                   document.body.appendChild(splash);
+                   
+                   setTimeout(() => splash.remove(), 2000);
+               }, i * 100);
+           }
+       }
+
+       function createSuperSparkles(x, y, count = 20) {
+           for (let i = 0; i < count; i++) {
+               setTimeout(() => {
+                   const sparkle = document.createElement('div');
+                   sparkle.className = 'super-sparkle';
+                   sparkle.style.left = (x + Math.random() * 100 - 50) + 'px';
+                   sparkle.style.top = (y + Math.random() * 100 - 50) + 'px';
+                   document.body.appendChild(sparkle);
+                   
+                   setTimeout(() => sparkle.remove(), 2000);
+               }, i * 50);
+           }
+       }
+
+       // 🎵 効果音再生強化版
+       function playSound(type) {
+           if (!gameState.soundEnabled) return;
+           
+           const sounds = {
+               click: document.getElementById('clickSound'),
+               success: document.getElementById('successSound'),
+               firework: document.getElementById('fireworkSound')
+           };
+           
+           const sound = sounds[type];
+           if (sound) {
+               sound.currentTime = 0;
+               sound.play().catch(() => {});
+           }
+       }
+
+       // 🎪 メガパーティーモード
+       function triggerMegaPartyMode() {
+           playSound('firework');
+           document.body.classList.add('party-mode');
+           
+           // 全エフェクトを同時発動
+           initFireworks();
+           initRainbow();
+           initHearts();
+           createConfetti();
+           createButterflies();
+           createPetals();
+           createMasks();
+           createUnicorn();
+           createBalloons();
+           createComets();
+           createPaintSplashes();
+           
+           // 10秒後にパーティーモード終了
+           setTimeout(() => {
+               document.body.classList.remove('party-mode');
+               gameState.fireworksActive = false;
+               gameState.rainbowActive = false;
+               gameState.heartsActive = false;
+           }, 10000);
+           
+           showAchievement('🎆 メガパーティーマスター 🎆');
+       }
+
+       // 🎊 グランドフィナーレ
+       function triggerGrandFinale() {
+           // 史上最大のエフェクト祭り
+           triggerMegaPartyMode();
+           
+           // 追加で特別エフェクト
+           setTimeout(() => createConfetti(), 1000);
+           setTimeout(() => createButterflies(), 2000);
+           setTimeout(() => createPetals(), 3000);
+           setTimeout(() => createComets(), 4000);
+           setTimeout(() => createPaintSplashes(), 5000);
+           
+           // 連続花火
+           for (let i = 0; i < 10; i++) {
+               setTimeout(() => {
+                   const canvas = document.getElementById('fireworks-canvas');
+                   createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
+               }, i * 500);
+           }
+           
+           showAchievement('🏆 グランドマスター 🏆');
+           
+           // 最終メッセージ
+           setTimeout(() => {
+               alert('🎉🎆🌟 おめでとうございます！ 🌟🎆🎉\n\nあなたは真の自動化マスターです！\n\n🚀 Happy Automating! 🚀');
+           }, 3000);
+       }
+
+       // 🏆 達成バッジ表示強化版
+       function showAchievement(title) {
+           playSound('success');
+           
+           const badge = document.createElement('div');
+           badge.className = 'achievement-badge';
+           badge.innerHTML = `
+               <h2>🏆 ${title}</h2>
+               <p>✨ おめでとうございます！ ✨</p>
+               <p>🎮 レベルアップしました！ 🎮</p>
+           `;
+           document.body.appendChild(badge);
+           
+           // バッジ周りにキラキラエフェクト
+           createSuperSparkles(window.innerWidth / 2, window.innerHeight / 2, 30);
+           
+           setTimeout(() => {
+               badge.style.animation = 'achievementPop 0.5s ease-out reverse forwards';
+               setTimeout(() => badge.remove(), 500);
+           }, 3000);
+           
+           // コンボカウント増加
+           gameState.comboCount++;
+           showComboEffect();
+       }
+
+       // 🔥 コンボエフェクト強化版
+       function showComboEffect() {
+           const comboElement = document.getElementById('comboEffect');
+           const countElement = document.getElementById('comboCount');
+           
+           countElement.textContent = gameState.comboCount;
+           comboElement.style.display = 'block';
+           
+           // コンボレベルに応じて追加エフェクト
+           if (gameState.comboCount >= 5) {
+               createConfetti();
+           }
+           if (gameState.comboCount >= 10) {
+               createButterflies();
+           }
+           if (gameState.comboCount >= 15) {
+               initFireworks();
+           }
+           
+           setTimeout(() => {
+               comboElement.style.display = 'none';
+           }, 4000);
+       }
+
+       // ✨ 魔法のカーソル強化版
+       function initMagicCursor() {
+           const cursor = document.getElementById('magicCursor');
+           let mouseX = 0, mouseY = 0;
+           
+           document.addEventListener('mousemove', (e) => {
+               mouseX = e.clientX;
+               mouseY = e.clientY;
+               
+               cursor.style.left = mouseX + 'px';
+               cursor.style.top = mouseY + 'px';
+               
+               // より頻繁にキラキラエフェクト
+               if (Math.random() < 0.3) {
+                   createSuperSparkles(mouseX, mouseY, 3);
+               }
+               
+               // 軌跡エフェクト
+               if (Math.random() < 0.1) {
+                   const trail = document.createElement('div');
+                   trail.style.position = 'fixed';
+                   trail.style.left = mouseX + 'px';
+                   trail.style.top = mouseY + 'px';
+                   trail.style.width = '4px';
+                   trail.style.height = '4px';
+                   trail.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                   trail.style.borderRadius = '50%';
+                   trail.style.pointerEvents = 'none';
+                   trail.style.zIndex = '9998';
+                   trail.style.animation = 'fadeOut 1s ease-out forwards';
+                   document.body.appendChild(trail);
+                   
+                   setTimeout(() => trail.remove(), 1000);
+               }
+           });
+       }
+
+       // 🎮 プログレスバー更新強化版
+       function updateProgress() {
+           const progressBar = document.getElementById('progressBar');
+           const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+           progressBar.style.width = scrolled + '%';
+           
+           // プログレスに応じてエフェクト追加
+           if (scrolled > 25 && !gameState.quarterReached) {
+               gameState.quarterReached = true;
+               showAchievement('📖 読書家');
+               createPetals();
+           }
+           if (scrolled > 50 && !gameState.halfReached) {
+               gameState.halfReached = true;
+               showAchievement('🎯 中級者');
+               createButterflies();
+           }
+           if (scrolled > 75 && !gameState.threeQuarterReached) {
+               gameState.threeQuarterReached = true;
+               showAchievement('🚀 上級者');
+               createComets();
+           }
+           if (scrolled > 95 && !gameState.almostDone) {
+               gameState.almostDone = true;
+               showAchievement('🏆 完読マスター');
+               triggerMegaPartyMode();
+           }
+       }
+
+       // 🎭 イースターエッグ強化版
+       function initEasterEgg() {
+           const easterEgg = document.getElementById('easterEgg');
+           let clickCount = 0;
+           const clickMessages = [
+               '🎪 サーカスへようこそ！',
+               '🌟 魔法が始まります...',
+               '🎆 パーティー開始！',
+               '🦄 ユニコーンが現れた！',
+               '🌈 虹の橋を渡ろう',
+               '🎭 マスクの舞踏会',
+               '🎨 芸術の爆発！',
+               '🚀 宇宙へ飛び立とう',
+               '👑 あなたは王様です',
+               '🎉 究極の祝福を！'
+           ];
+           
+           easterEgg.addEventListener('click', () => {
+               clickCount++;
+               playSound('success');
+               
+               // クリック数に応じた特別エフェクト
+               switch(clickCount) {
+                   case 1:
+                       showHiddenQuote();
+                       createPetals();
+                       break;
+                   case 2:
+                       createButterflies();
+                       break;
+                   case 3:
+                       triggerMegaPartyMode();
+                       break;
+                   case 4:
+                       createUnicorn();
+                       break;
+                   case 5:
+                       initRainbow();
+                       setTimeout(() => gameState.rainbowActive = false, 5000);
+                       showAchievement('🌈 虹の魔法使い');
+                       break;
+                   case 6:
+                       createMasks();
+                       break;
+                   case 7:
+                       createPaintSplashes();
+                       break;
+                   case 8:
+                       createComets();
+                       break;
+                   case 9:
+                       showAchievement('👑 イースターエッグ王');
+                       break;
+                   case 10:
+                       triggerGrandFinale();
+                       clickCount = 0; // リセット
+                       break;
+                   default:
+                       createConfetti();
+                       break;
+               }
+               
+               // ランダムメッセージ表示
+               if (clickCount <= 10) {
+                   setTimeout(() => {
+                       alert(clickMessages[clickCount - 1] || '🎉 素晴らしい！');
+                   }, 500);
+               }
+           });
+       }
+
+       // 🎭 隠し名言強化版
+       function showHiddenQuote() {
+           const quotes = [
+               "「コードは詩である。バグは...まあ、詩的な表現だ。」 - 匿名の開発者 🎭",
+               "「完璧なコードなど存在しない。あるのは動くコードだけだ。」 - 賢者 🧙‍♂️",
+               "「デバッグとは探偵小説を読むようなものだ。あなたが作者で犯人でもある。」 - 哲学者 🕵️",
+               "「コーヒーをコードに変換するマシン、それが開発者だ。」 - エンジニア ☕",
+               "「エラー404: ユーモアが見つかりません」 - AI 🤖",
+               "「プログラマーの最高の友達は削除キーである。」 - 断捨離マスター 🗑️",
+               "「バグのないコードは、まだテストされていないコードだ。」 - テスター 🐛",
+               "「コメントのないコードは、未来の自分への呪いである。」 - 未来人 ⏰"
+           ];
+           
+           const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+           const quoteElement = document.getElementById('hiddenQuote');
+           
+           quoteElement.querySelector('p').textContent = randomQuote;
+           quoteElement.classList.add('show');
+           
+           // 名言表示中にキラキラエフェクト
+           createSuperSparkles(window.innerWidth / 2, window.innerHeight - 100, 15);
+           
+           setTimeout(() => {
+               quoteElement.classList.remove('show');
+           }, 6000);
+       }
+
+       // 🌙 テーマ切り替え強化版
+       function toggleTheme() {
+           const themeToggle = document.getElementById('themeToggle');
+           
+           if (gameState.currentTheme === 'dark') {
+               // ライトモード
+               document.documentElement.style.setProperty('--dark-bg', '#f0f0f0');
+               document.documentElement.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.1)');
+               document.body.style.color = '#333';
+               themeToggle.textContent = '☀️ ライト';
+               gameState.currentTheme = 'light';
+               
+               // ライトモード専用エフェクト
+               createButterflies();
+               createPetals();
+           } else {
+               // ダークモード
+               document.documentElement.style.setProperty('--dark-bg', '#0a0a0a');
+               document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.1)');
+               document.body.style.color = '#fff';
+               themeToggle.textContent = '🌙 ダーク';
+               gameState.currentTheme = 'dark';
+               
+               // ダークモード専用エフェクト
+               createComets();
+               initFireworks();
+               setTimeout(() => gameState.fireworksActive = false, 3000);
+           }
+           
+           playSound('click');
+           showAchievement('🎨 テーママスター');
+           createSuperSparkles(30, 100, 10);
+       }
+
+       // 🎵 サウンド切り替え強化版
+       function toggleSound() {
+           const soundToggle = document.getElementById('soundToggle');
+           gameState.soundEnabled = !gameState.soundEnabled;
+           
+           soundToggle.textContent = gameState.soundEnabled ? '🔊 サウンド' : '🔇 ミュート';
+           
+           if (gameState.soundEnabled) {
+               playSound('success');
+               showAchievement('🎵 サウンドマスター');
+           } else {
+               showAchievement('🔇 静寂の達人');
+           }
+           
+           createSuperSparkles(30, 30, 8);
+       }
+
+       // 📊 デモ関数群強化版
+       function startDemo(type) {
+           playSound('click');
+           const demoMessages = {
+               investment: '💰 投資デモを開始します！リアルタイム株価データを取得中... 📈',
+               marketing: '📊 マーケティング分析デモを開始！顧客感情を分析中... 💝',
+               tech: '💻 技術情報デモを開始！最新のAIトレンドを検索中... 🤖',
+               global: '🌍 グローバルニュースデモを開始！世界のニュースを収集中... 📰'
+           };
+           
+           // デモタイプ別エフェクト
+           switch(type) {
+               case 'investment':
+                   createComets();
+                   break;
+               case 'marketing':
+                   initHearts();
+                   setTimeout(() => gameState.heartsActive = false, 3000);
+                   break;
+               case 'tech':
+                   createPaintSplashes();
+                   break;
+               case 'global':
+                   createConfetti();
+                   break;
+           }
+           
+           alert(demoMessages[type]);
+           showAchievement(`🎮 ${type.toUpperCase()}デモマスター`);
+       }
+
+       // 📋 プロンプトコピー強化版
+       function copyPrompt(type) {
+           const prompts = {
+               summary: '重要なポイントを3つに絞って要約してください',
+               trend: '最新トレンドを分析し、ビジネスチャンスを提案してください',
+               competitor: '競合他社の動向から学べることを教えてください',
+               risk: '潜在的なリスクや注意点があれば指摘してください'
+           };
+           
+           navigator.clipboard.writeText(prompts[type]).then(() => {
+               playSound('success');
+               showAchievement('📋 プロンプトマスター');
+               createSuperSparkles(window.innerWidth / 2, window.innerHeight / 2, 12);
+           });
+       }
+
+       // 🔧 診断・解決関数群強化版
+       function checkConnection() {
+           playSound('click');
+           createComets();
+           setTimeout(() => {
+               alert('🔍 Chrome接続を確認中...\n✅ 接続OK！完璧です！🎉');
+               showAchievement('🔧 接続マスター');
+           }, 1000);
+       }
+
+       function runDiagnostic() {
+           playSound('click');
+           createPaintSplashes();
+           setTimeout(() => {
+               alert('🔍 システム診断を実行中...\n✅ 全てのシステムが正常です！🚀');
+               showAchievement('🛠️ 診断マスター');
+           }, 1500);
+       }
+
+       function showSolution(type) {
+           playSound('click');
+           createButterflies();
+           setTimeout(() => {
+               alert('💡 解決策を表示します！\n1. Chromeを完全終了 🔄\n2. デバッグモードで再起動 🚀\n3. Claude.aiに再ログイン 🤖');
+               showAchievement('🔧 問題解決マスター');
+           }, 1000);
+       }
+
+       function celebrateAutomation() {
+           triggerMegaPartyMode();
+           showAchievement('🚀 自動化マスター');
+           
+           setTimeout(() => {
+               alert('🎉 自動化の力で世界を変えましょう！ 🌍✨');
+           }, 2000);
+       }
+
+       // 📱 その他のUI関数強化版
+       function showQueryExamples() {
+           playSound('click');
+           createPetals();
+           setTimeout(() => {
+               alert('🔍 検索クエリ例：\n• AI OR 人工知能 🤖\n• #Python #JavaScript 💻\n• @elonmusk OR @sundarpichai 🚀\n• ニュース -広告 -スパム 📰');
+               showAchievement('🔍 検索マスター');
+           }, 800);
+       }
+
+       function animateSlider() {
+           playSound('click');
+           createSuperSparkles(window.innerWidth / 2, window.innerHeight / 2, 8);
+           alert('🎛️ スライダーでお好みの件数を設定してください！\n推奨: 20-50件 📊');
+           showAchievement('🎛️ 設定マスター');
+       }
+
+       function toggleAnalysis() {
+           playSound('click');
+           createConfetti();
+           setTimeout(() => {
+               alert('🤖 Claude分析を切り替えました！\nAIパワーでより深い洞察を得られます！✨');
+               showAchievement('🤖 AI活用マスター');
+           }, 1000);
+       }
+
+       // 💫 ローディング管理強化版
+       function hideLoader() {
+           const loader = document.getElementById('loadingSpinner');
+           setTimeout(() => {
+               loader.style.animation = 'fadeOut 1s ease-out forwards';
+               setTimeout(() => {
+                   loader.style.display = 'none';
+                   // ローディング完了エフェクト
+                   createSuperSparkles(window.innerWidth / 2, window.innerHeight / 2, 20);
+               }, 1000);
+           }, 2000);
+       }
+
+       // 🎪 追加のCSSアニメーション（動的追加）
+       function addCustomAnimations() {
+           const style = document.createElement('style');
+           style.textContent = `
+               @keyframes fadeOut {
+                   from { opacity: 1; }
+                   to { opacity: 0; }
+               }
+               
+               @keyframes galaxyRotate {
+                   from { background-position: 0% 50%; }
+                   to { background-position: 100% 50%; }
+               }
+               
+               @keyframes cosmicDance {
+                   0%, 100% { transform: scale(1) rotate(0deg); }
+                   25% { transform: scale(1.1) rotate(90deg); }
+                   50% { transform: scale(0.9) rotate(180deg); }
+                   75% { transform: scale(1.05) rotate(270deg); }
+               }
+               
+               .cosmic-element {
+                   animation: cosmicDance 4s ease-in-out infinite;
+               }
+           `;
+           document.head.appendChild(style);
+       }
+
+       // 🚀 初期化メイン関数
+       document.addEventListener('DOMContentLoaded', () => {
+           // 基本システム初期化
+           initSuperParticles();
+           initMagicCursor();
+           initEasterEgg();
+           initShootingStars();
+           addCustomAnimations();
+           hideLoader();
+           
+           // イベントリスナー設定
+           window.addEventListener('scroll', updateProgress);
+           document.getElementById('soundToggle').addEventListener('click', toggleSound);
+           document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+           
+           // 特別なキーボードショートカット
+           document.addEventListener('keydown', (e) => {
+               if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+                   e.preventDefault();
+                   triggerMegaPartyMode();
+               }
+               if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+                   e.preventDefault();
+                   triggerGrandFinale();
+               }
+               if (e.key === 'Escape') {
+                   // 全エフェクト停止
+                   gameState.fireworksActive = false;
+                   gameState.rainbowActive = false;
+                   gameState.heartsActive = false;
+                   document.body.classList.remove('party-mode');
+               }
+           });
+           
+           // 自動エフェクト開始
+           setTimeout(() => {
+               showAchievement('🎉 ようこそマスター！');
+               createPetals();
+           }, 3000);
+           
+           // 定期的なサプライズエフェクト
+           setInterval(() => {
+               if (Math.random() < 0.1) { // 10%の確率
+                   const surprises = [createButterflies, createPetals, createComets];
+                   const randomSurprise = surprises[Math.floor(Math.random() * surprises.length)];
+                   randomSurprise();
+               }
+           }, 30000); // 30秒ごと
+           
+           // リサイズ対応
+           window.addEventListener('resize', () => {
+               const canvases = ['particles-canvas', 'fireworks-canvas', 'shooting-stars-canvas', 'rainbow-canvas', 'hearts-canvas'];
+               canvases.forEach(id => {
+                   const canvas = document.getElementById(id);
+                   canvas.width = window.innerWidth;
+                   canvas.height = window.innerHeight;
+               });
+           });
+           
+           // 最終ウェルカムメッセージ
+           setTimeout(() => {
+               console.log(`
+🎆🌟💖🪩✨🌈🎪🎭🦄🎈🎨🚀
+   
+   超絶激盛りマニュアルへようこそ！
+   
+   隠しコマンド:
+   - Ctrl+Shift+P: メガパーティーモード
+   - Ctrl+Shift+F: グランドフィナーレ  
+   - Esc: エフェクト全停止
+   
+   🎉 楽しいTwitter自動化ライフを！ 🎉
+   
+🎆🌟💖🪩✨🌈🎪🎭🦄🎈🎨🚀
+               `);
+           }, 5000);
+       });
+   </script>
+</body>
+</html>
