@@ -35,3 +35,7 @@ LOG_DIR = "logs"
 # ログ設定
 LOG_LEVEL = "INFO"
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+
+# データベース設定
+USE_DATABASE = True
+DATABASE_PATH = "data/scraper.db"
